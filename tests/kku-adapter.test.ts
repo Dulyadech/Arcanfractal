@@ -84,7 +84,7 @@ describe("KKU IntelliShare Provider Adapter (SDD §7, §7.1)", () => {
       );
 
       const parsedBody = JSON.parse(capturedBody || "{}");
-      expect(parsedBody.model).toBe("gpt-4o-mini");
+      expect(parsedBody.model).toBe("gemini-3.8-flash");
       expect(parsedBody.messages).toHaveLength(2);
       expect(parsedBody.messages[0].content).toBe("System instruction");
       expect(parsedBody.messages[1].content).toBe("User query");

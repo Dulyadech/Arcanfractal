@@ -8,9 +8,13 @@ export async function checkKKUHealth(
   skipNetwork: boolean = false
 ): Promise<AIProviderHealthInfo> {
   const apiKey = process.env.KKU_INTELLISHARE_API_KEY;
-  const rawBaseUrl = process.env.KKU_INTELLISHARE_BASE_URL || "https://intellishare.kku.ac.th/v1";
+  const rawBaseUrl = process.env.KKU_INTELLISHARE_BASE_URL || "https://gen.ai.kku.ac.th/api/v1";
   const baseUrl = rawBaseUrl.replace(/\/+$/, "");
-  const model = process.env.KKU_INTELLISHARE_MODEL || "gpt-4o-mini";
+  const configuredModel = process.env.KKU_INTELLISHARE_MODEL;
+  const model =
+    configuredModel && configuredModel !== "gpt-4o-mini"
+      ? configuredModel
+      : "gemini-3.8-flash";
 
   if (!apiKey) {
     return {

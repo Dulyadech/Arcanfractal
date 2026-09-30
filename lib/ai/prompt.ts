@@ -1,5 +1,6 @@
 import { getSpreadDefinition } from "@/data/spreads";
 import { getCardById } from "@/data/cards";
+import { analyzeQuestion, type QuestionAnalysis } from "./intent";
 import type { SpreadId } from "@/types/spread";
 import type { DrawnCard } from "@/types/tarot";
 import type { ReadingAnalysis } from "@/types/reading";
@@ -10,51 +11,83 @@ export interface BuildPromptParams {
   cards: DrawnCard[];
   analysis: ReadingAnalysis;
   locale?: string;
+  questionAnalysis?: QuestionAnalysis;
 }
 
 /**
- * System prompt establishing Tarot interpreter persona and enforcing the 3 absolute rules (SDD §5.1).
+ * System prompt establishing Tarot interpreter persona, Question->Answer mapping, and Scope Lock.
  */
 export function buildSystemPrompt(locale: string = "th"): string {
   const isEn = locale.toLowerCase().startsWith("en");
 
-  return `You are Arcanfractal, a wise, grounded, and deeply compassionate Tarot reader.
-Your purpose is to provide empowering, psychologically reflective, and actionable insights.
+  return `You are Arcanfractal, a master Tarot interpreter and intuitive counsel.
 
-ABSOLUTE PROHIBITIONS (SDD §5.1 - Violations will be rejected by automated guards):
-1. NO CARD MODIFICATION: You MUST interpret ONLY the exact cards provided in the spread. Do not replace, re-order, or omit any card.
-2. ZERO HALLUCINATION (UNDRAWN CARD GUARD): Under NO circumstances mention or reference any Tarot card that was NOT drawn in this spread. If you mention any card other than the specified drawn cards, your response will be flagged and discarded.
-3. NO FATALISTIC CLAIMS: Never predict death, terminal illness, legal verdicts, or claim to read other people's private minds. Focus on the user's agency, growth, and self-awareness.
+CORE OPERATING PRINCIPLE:
+The user must feel: "Here is the clear answer to my question, using the drawn cards as evidence", NEVER: "Here is an explanation of what these cards mean."
+DO NOT start by lecturing about card archetypes.
+Start by asking yourself: "What is the user asking, and what is the direct answer according to these cards in their positions?"
+DO NOT substitute advice in place of a direct answer. Answer whether the outcome is likely yes, likely no, mixed, or unclear first, and then explain.
 
-OUTPUT REQUIREMENTS:
-- Output MUST be a single, valid JSON object matching the exact schema specified below.
-- Do NOT wrap your JSON in markdown code blocks like \`\`\`json. Output raw JSON only.
-- Language: Generate all descriptive text in ${isEn ? "English" : "Thai"}.
+ABSOLUTE PROHIBITIONS:
+1. NO CARD MODIFICATION: You MUST interpret ONLY the exact cards provided in the spread. Never swap, re-order, or omit any card. Never draw new cards.
+2. ZERO HALLUCINATION (UNDRAWN CARD GUARD): Under NO circumstances mention or reference any Tarot card that was NOT drawn in this spread.
+3. NO OVERCLAIMING OR FATALISTIC CLAIMS: Never predict death, terminal illness, legal verdicts, or guarantee future events with absolute certainty. Distinguish what the cards reflect vs tendencies vs natural human agency.
+4. SCOPE LOCK & NO UNNECESSARY SPLITTING: Stay strictly within the user's question scope. If a user asks a conditional follow-up (e.g. "Will work finish tomorrow? If not, what will happen?"), answer BOTH the primary question and the conditional follow-up using this SINGLE reading and this SAME card spread. DO NOT split them into separate readings.
+5. NO GUESSING UNRESOLVED ANTECEDENTS: If an inquiry starts with an unresolved dangling condition without context (e.g. "What if not?"), politely request clarification rather than fabricating an assumed scenario.
 
-JSON SCHEMA:
+OUTPUT FORMAT REQUIREMENTS:
+- Output MUST be a single, valid JSON object matching the exact schema below.
+- Do NOT wrap your JSON in markdown code blocks (\`\`\`json). Output raw JSON only.
+- Language: Generate all text values in ${isEn ? "English" : "Thai"}.
+
+REQUIRED JSON SCHEMA:
 {
   "safety": "none" | "sensitive" | "crisis",
-  "overview": "Clear summary connecting the user's question to the overarching energy of the spread.",
+  "originalQuestion": "The user's exact original question without alterations",
+  "questionIntent": "feelings" | "relationship" | "career" | "decision" | "future" | "general" | "yes_no",
+  "questionScope": "The specific thematic scope of the question",
+  "directAnswer": "The direct, clear answer to the user's question based on the cards as a whole. If there is a conditional follow-up, include both the primary answer and the conditional follow-up answer here.",
+  "confidence": "Nuanced statement of certainty/tendency based on card energy, acknowledging personal agency.",
+  "overview": "Overview answering the user's query and setting the tone.",
+  "answer": {
+    "primary": {
+      "direction": "likely_yes" | "likely_no" | "mixed" | "unclear",
+      "text": "Direct, clear answer to the primary question.",
+      "evidenceCardIds": ["cardId1", "cardId2"]
+    },
+    "followUps": [
+      {
+        "id": "followup-1",
+        "text": "The follow-up question text",
+        "answer": "The answer to the follow-up question using this same card spread",
+        "evidenceCardIds": ["cardId3"]
+      }
+    ]
+  },
   "cards": [
     {
       "cardId": "string matching the drawn card's cardId",
       "positionKey": "string matching the position key",
-      "interpretation": "Insightful interpretation of this card in this specific position."
+      "meaningInContext": "What this card means specifically in the context of the user's question and this position.",
+      "contributionToAnswer": "How this card specifically acts as evidence supporting the direct answer.",
+      "interpretation": "A cohesive paragraph combining the contextual meaning and its evidence for the answer."
     }
   ],
-  "synthesis": "How the cards interact and tell a cohesive narrative, incorporating the grounded analysis facts (major ratio, elements, patterns).",
-  "advice": "Practical, grounded, and empowering steps the user can take.",
-  "reflectionQuestion": "One open-ended, introspective question to encourage the user's own inner reflection."
+  "synthesis": "How the cards interact and support the direct answer together (incorporating elements, arcana ratio, repeated ranks).",
+  "advice": "Grounded, empowering, actionable steps the user should take (distinct from the direct answer).",
+  "reflectionQuestion": "One introspective, open-ended question to help the user reflect deeper.",
+  "conclusion": "A concise concluding sentence reinforcing the direct answer."
 }`;
 }
 
 /**
- * Builds user prompt containing the question, drawn cards, and grounded analysis facts.
+ * Builds user prompt containing the question, scope lock, contextual card positions, and grounded facts.
  */
 export function buildUserPrompt(params: BuildPromptParams): string {
   const { question, spreadId, cards, analysis, locale = "th" } = params;
   const spreadDef = getSpreadDefinition(spreadId);
   const isEn = locale.toLowerCase().startsWith("en");
+  const qAnalysis = params.questionAnalysis || analyzeQuestion(question, locale);
 
   const cardsListFormatted = cards
     .map((drawn, idx) => {
@@ -73,35 +106,72 @@ export function buildUserPrompt(params: BuildPromptParams): string {
 
       return `[Card ${idx + 1}]
 - ID: ${drawn.cardId}
-- Name: ${cardName}
-- Orientation: ${drawn.orientation}
-- Position: ${pos?.name ?? `Position ${idx + 1}`} (${pos?.description ?? ""})
-- Position Key: ${drawn.positionKey}
+- Card Name: ${cardName} (${drawn.orientation})
+- Spread Position: ${pos?.name ?? `Position ${idx + 1}`} (Position Key: '${drawn.positionKey}')
+- Position Role: ${pos?.description ?? ""}
+- Core Archetype: ${meaningText}
 - Keywords: ${keywords}
-- Core Meaning: ${meaningText}`;
+- ROLE IN READING: How does this card in this position specifically provide evidence to answer: "${qAnalysis.primary.text}"?`;
     })
     .join("\n\n");
+
+  let resolutionInstruction = "";
+  if (qAnalysis.resolution.type === "conditional_follow_up") {
+    resolutionInstruction = `\nCRITICAL RESOLUTION STRATEGY (CONDITIONAL FOLLOW-UP):
+The user inquiry contains a primary question and a conditional follow-up:
+- Primary: "${qAnalysis.primary.text}"
+${qAnalysis.followUps.map((f) => `- Follow-up (${f.type}): Condition="${f.condition}", Normalized="${f.normalizedQuestion}"`).join("\n")}
+You MUST answer BOTH in this single reading using these exact cards.
+1. Answer the primary question in 'answer.primary' with direction ('likely_yes', 'likely_no', 'mixed', or 'unclear') and direct text.
+2. In 'answer.followUps', explain what happens if the condition occurs (e.g. if not on time), using the outcome/future card as evidence.
+DO NOT tell the user to draw a new spread! Both questions share the same context.`;
+  } else if (qAnalysis.resolution.type === "clarifying_follow_up") {
+    resolutionInstruction = `\nCRITICAL RESOLUTION STRATEGY (CLARIFYING FOLLOW-UP):
+The user asks for detail about the primary event:
+- Primary: "${qAnalysis.primary.text}"
+${qAnalysis.followUps.map((f) => `- Follow-up: "${f.normalizedQuestion}"`).join("\n")}
+Answer both parts cohesively within this single reading using the drawn cards.`;
+  } else if (qAnalysis.resolution.type === "clarify") {
+    resolutionInstruction = `\nCRITICAL RESOLUTION STRATEGY (CLARIFICATION NEEDED):
+The question refers to a relative or conditional antecedent without sufficient context (${qAnalysis.resolution.missingContext}).
+Do NOT assume or fabricate what this refers to. Politely indicate in 'directAnswer' and 'overview' that clarification is needed to provide an accurate interpretation.`;
+  } else if (qAnalysis.resolution.type === "independent_multi_question") {
+    resolutionInstruction = `\nNOTE ON INDEPENDENT INQUIRIES:
+The user asked about two distinct, unrelated topics.
+Lock this reading strictly to the primary question: "${qAnalysis.primary.text}".
+Set scopeNotice indicating that the secondary independent topic requires a separate spread.`;
+  }
 
   return `USER QUESTION:
 "${question}"
 
-SPREAD TYPE:
-${spreadDef.name} (${spreadDef.cardCount} cards)
-Description: ${spreadDef.description}
+QUESTION ANALYSIS:
+- Intent: ${qAnalysis.primary.intent}
+- Scope Lock: ${qAnalysis.primary.scope}${qAnalysis.primary.timeframe ? ` (Timeframe: ${qAnalysis.primary.timeframe})` : ""}
+- Resolution Type: ${qAnalysis.resolution.type}
+${resolutionInstruction}
 
-DRAWN CARDS (STRICT LIST - ONLY INTERPRET THESE ${cards.length} CARDS):
+SPREAD CONTEXT:
+- Spread: ${spreadDef.name} (${spreadDef.cardCount} cards)
+- Spread Summary: ${spreadDef.description}
+
+DRAWN CARDS (STRICT LIST - USE AS SUPPORTING EVIDENCE):
 ${cardsListFormatted}
 
-GROUNDED ANALYSIS FACTS:
+GROUNDED FACTS FROM TAROT ENGINE:
 - Major Arcana Count: ${analysis.majorCount}/${cards.length} (${(analysis.majorRatio * 100).toFixed(0)}%)
 - Dominant Element: ${analysis.dominantElement ?? "Balanced"}
 - Repeated Ranks: ${analysis.repeatedRanks.length > 0 ? analysis.repeatedRanks.join(", ") : "None"}
 - Court Cards: ${analysis.courtCards.length > 0 ? analysis.courtCards.join(", ") : "None"}
 - Reversed Cards Ratio: ${(analysis.reversedRatio * 100).toFixed(0)}%
 
-INSTRUCTIONS:
-Please provide your interpretation as valid JSON following the required schema in ${isEn ? "English" : "Thai"}.
-Remember: Do NOT mention any cards outside this list of ${cards.length} cards.`;
+INSTRUCTIONS FOR GENERATION:
+1. Formulate 'directAnswer' and 'answer.primary' FIRST: Answer "${qAnalysis.primary.text}" clearly with a definite direction (likely_yes, likely_no, mixed, unclear).
+2. If there are conditional follow-ups, answer them in 'answer.followUps' using this same spread.
+3. In 'cards', explain 'meaningInContext' and 'contributionToAnswer' strictly tailored to the question and position.
+4. In 'synthesis', demonstrate how the cards combine into a unified story supporting the answer.
+5. In 'advice', provide actionable steps (do NOT substitute advice for the direct answer).
+6. Output strictly valid JSON matching the schema in ${isEn ? "English" : "Thai"}.`;
 }
 
 /**
@@ -119,10 +189,11 @@ ALLOWED CARDS FOR THIS READING:
 ${allowedCardIds.join(", ")}
 
 STRICT REPAIR INSTRUCTIONS:
-1. Fix the specified error immediately.
-2. If the error mentions undrawn cards, completely remove any reference to those undrawn cards.
-3. Ensure every card in the 'cards' array matches one of the allowed cards above.
-4. Output ONLY the corrected valid JSON object with no commentary or markdown wrappers.
+1. Fix the error immediately.
+2. Ensure 'directAnswer' and 'answer.primary' directly and clearly answer the user's question first.
+3. Ensure every card has 'meaningInContext' and 'contributionToAnswer' tailored to the question.
+4. Under NO circumstances mention any undrawn Tarot cards.
+5. Output ONLY the corrected valid JSON object with no markdown wrappers.
 
 PREVIOUS RESPONSE FOR REVISION:
 ${previousOutput.slice(0, 3000)}`;

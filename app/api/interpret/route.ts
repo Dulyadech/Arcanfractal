@@ -53,7 +53,8 @@ export async function POST(
     );
   }
 
-  const { drawId, question, spreadId, cards, locale } = body as Record<string, unknown>;
+  const { drawId, question, spreadId, cards, locale, model } = body as Record<string, unknown>;
+  const requestedModel = typeof model === "string" && model.trim() ? model.trim() : undefined;
 
   // 1. Server Invariant Check (SDD §5 Guard)
   const invariantResult = validateReadingInvariant({
@@ -86,6 +87,7 @@ export async function POST(
       cards: validatedCards,
       analysis: computedAnalysis,
       locale: requestLocale,
+      model: requestedModel,
     });
 
     const response = NextResponse.json(interpretation, {

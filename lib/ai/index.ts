@@ -5,4 +5,5 @@ export * from "./validation";
 export * from "./adapter";
 export * from "./providers/kku";
 export * from "./providers/gemini";
+export * from "./intent";
 export * from "./health";

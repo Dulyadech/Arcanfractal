@@ -5,16 +5,22 @@
 export async function callKKUIntelliShare(
   systemPrompt: string,
   userPrompt: string,
-  timeoutMs: number = 15000
+  timeoutMs: number = 30000,
+  overrideModel?: string
 ): Promise<string> {
   const apiKey = process.env.KKU_INTELLISHARE_API_KEY;
   if (!apiKey) {
     throw new Error("KKU_INTELLISHARE_API_KEY is not configured.");
   }
 
-  const rawBaseUrl = process.env.KKU_INTELLISHARE_BASE_URL || "https://intellishare.kku.ac.th/v1";
+  const rawBaseUrl = process.env.KKU_INTELLISHARE_BASE_URL || "https://gen.ai.kku.ac.th/api/v1";
   const baseUrl = rawBaseUrl.replace(/\/+$/, "");
-  const model = process.env.KKU_INTELLISHARE_MODEL || "gpt-4o-mini";
+  const configuredModel = process.env.KKU_INTELLISHARE_MODEL;
+  const model =
+    overrideModel ||
+    (configuredModel && configuredModel !== "gpt-4o-mini"
+      ? configuredModel
+      : "gemini-3.8-flash");
 
   const endpoint = `${baseUrl}/chat/completions`;
 
@@ -35,7 +41,7 @@ export async function callKKUIntelliShare(
           { role: "user", content: userPrompt },
         ],
         temperature: 0.7,
-        max_tokens: 1500,
+        max_tokens: 3000,
         response_format: { type: "json_object" },
       }),
       signal: controller.signal,
@@ -59,7 +65,7 @@ export async function callKKUIntelliShare(
               { role: "user", content: userPrompt },
             ],
             temperature: 0.7,
-            max_tokens: 1500,
+            max_tokens: 3000,
           }),
           signal: controller.signal,
         });
