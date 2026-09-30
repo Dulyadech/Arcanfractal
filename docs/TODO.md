@@ -81,7 +81,7 @@
 
 ### Verification
 
-- [ ] `pnpm dev` สำเร็จ เปิดหน้าเว็บว่างได้
+- [x] `pnpm dev` สำเร็จ เปิดหน้าเว็บว่างได้
 - [x] Tailwind classes ทำงานถูกต้อง (สี background/text ตรงตาม design tokens)
 - [x] TypeScript compile ไม่มี error
 
@@ -97,26 +97,26 @@
 
 ### Tasks
 
-- [ ] สร้าง TypeScript types/interfaces ตาม SDD §8 Data Model: `TarotCard`, `DrawnCard`, `ReadingRecord`, `ReadingAnalysis`, `AIInterpretationPayload` (§5.2)
-- [ ] สร้าง Spread types + position definitions ตาม SDD §4.5 ครบทั้ง 4 spreads (`single`, `three-timeline`, `three-guidance`, `five-path`)
-- [ ] สร้าง static deck catalog (ข้อมูลไพ่ 78 ใบ): id, slug, name, arcana, suit, number, element, keywords, meanings — ตาม SDD §3 "78-Card Deck Catalog" + §8
-- [ ] Implement Fisher-Yates shuffle ด้วย Web Crypto API (`crypto.getRandomValues`) — SDD §4.1, §7.1 "ไร้ Modulo Bias"
-- [ ] Implement reversed card randomization (50% ต่อใบ, อิสระต่อกัน) — SDD §3 "Reversed Cards"
-- [ ] Implement Reading Analysis คำนวณ deterministic facts: majorCount/Ratio, dominantElement, repeatedRanks, courtCards, reversedRatio — SDD §4.6
-- [ ] เขียน unit tests สำหรับ Tarot Engine:
-  - Shuffle สร้าง permutation 78 ใบไม่ซ้ำ
-  - ไม่มี modulo bias (distribution test)
-  - Reversed randomization ~50%
-  - No Duplicate Rule ภายใน reading
-  - Analysis คำนวณถูกต้อง
-  - Spread position keys ตรงกับ SDD §4.5
+- [x] สร้าง TypeScript types/interfaces ตาม SDD §8 Data Model: `TarotCard`, `DrawnCard`, `ReadingRecord`, `ReadingAnalysis`, `AIInterpretationPayload` (§5.2)
+- [x] สร้าง Spread types + position definitions ตาม SDD §4.5 ครบทั้ง 4 spreads (`single`, `three-timeline`, `three-guidance`, `five-path`)
+- [x] สร้าง static deck catalog (ข้อมูลไพ่ 78 ใบ): id, slug, name, arcana, suit, number, element, keywords, meanings — ตาม SDD §3 "78-Card Deck Catalog" + §8
+- [x] Implement Fisher-Yates shuffle ด้วย Web Crypto API (`crypto.getRandomValues`) — SDD §4.1, §7.1 "ไร้ Modulo Bias"
+- [x] Implement reversed card randomization (50% ต่อใบ, อิสระต่อกัน) — SDD §3 "Reversed Cards"
+- [x] Implement Reading Analysis คำนวณ deterministic facts: majorCount/Ratio, dominantElement, repeatedRanks, courtCards, reversedRatio — SDD §4.6
+- [x] เขียน unit tests สำหรับ Tarot Engine:
+  - [x] Shuffle สร้าง permutation 78 ใบไม่ซ้ำ
+  - [x] ไม่มี modulo bias (distribution test)
+  - [x] Reversed randomization ~50%
+  - [x] No Duplicate Rule ภายใน reading
+  - [x] Analysis คำนวณถูกต้อง
+  - [x] Spread position keys ตรงกับ SDD §4.5
 
 ### Verification
 
-- [ ] Unit tests ผ่าน 100%
-- [ ] Deck catalog มีข้อมูลครบ 78 ใบ (22 Major + 56 Minor)
-- [ ] Shuffle ผลิต 78 ใบไม่ซ้ำกันทุกรอบ
-- [ ] Reading Analysis คืนค่าถูกต้องเมื่อให้ sample cards
+- [x] Unit tests ผ่าน 100%
+- [x] Deck catalog มีข้อมูลครบ 78 ใบ (22 Major + 56 Minor)
+- [x] Shuffle ผลิต 78 ใบไม่ซ้ำกันทุกรอบ
+- [x] Reading Analysis คืนค่าถูกต้องเมื่อให้ sample cards
 
 ### Done when
 
@@ -130,7 +130,7 @@ Tarot Engine เป็น Pure TypeScript module ที่ทำงานถู�
 
 ### Tasks
 
-- [ ] Implement `POST /api/draw` — สร้าง deck 78 ใบ + shuffle once + ส่ง shuffled deck ทั้ง 78 ใบกลับ client + คำนวณ analysis (SDD §9.1, Q-004 confirmed)
+- [x] Implement `POST /api/draw` — สร้าง deck 78 ใบ + shuffle once + ส่ง shuffled deck ทั้ง 78 ใบกลับ client + คำนวณ analysis (SDD §9.1, Q-004 confirmed)
   - Request: `{ spreadId, reversedEnabled }`
   - Response: `{ drawId, spreadId, deck (shuffled 78 cards), analysis }`
 - [ ] Implement `POST /api/interpret` — รับ drawn cards + question → เรียก AI → validate output → return หรือ fallback (SDD §9.2, §5)
@@ -144,7 +144,7 @@ Tarot Engine เป็น Pure TypeScript module ที่ทำงานถู�
 
 ### Verification
 
-- [ ] `/api/draw` คืน shuffled deck ที่มีไพ่ 78 ใบไม่ซ้ำ + drawId ที่ unique
+- [x] `/api/draw` คืน shuffled deck ที่มีไพ่ 78 ใบไม่ซ้ำ + drawId ที่ unique
 - [ ] `/api/interpret` คืน structured JSON ตาม `AIInterpretationPayload` schema
 - [ ] `/api/health` คืนสถานะระบบ
 - [ ] Rate limiter ปฏิเสธ request เกินกำหนด
