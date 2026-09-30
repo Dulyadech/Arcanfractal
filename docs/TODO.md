@@ -75,15 +75,15 @@
 - [x] ตั้งค่า Tailwind CSS พร้อม design tokens ตาม SDD §6.1 (สี, font, responsive breakpoints)
 - [x] ติดตั้ง dependencies: Radix UI, Lucide React, Framer Motion (SDD §7.1)
 - [x] ตั้งค่า ESLint + Prettier
-- [ ] สร้าง folder structure เบื้องต้น (`app/`, `lib/`, `components/`, `data/`, `types/`)
-- [ ] สร้าง `.env.example` สำหรับ API keys (KKU IntelliShare, Gemini — SDD §7.1)
-- [ ] ตั้งค่า path aliases (`@/`)
+- [x] สร้าง folder structure เบื้องต้น (`app/`, `lib/`, `components/`, `data/`, `types/`)
+- [x] สร้าง `.env.example` สำหรับ API keys (KKU IntelliShare, Gemini — SDD §7.1)
+- [x] ตั้งค่า path aliases (`@/`)
 
 ### Verification
 
-- [ ] `npm run dev` สำเร็จ เปิดหน้าเว็บว่างได้
-- [ ] Tailwind classes ทำงานถูกต้อง (สี background/text ตรงตาม design tokens)
-- [ ] TypeScript compile ไม่มี error
+- [ ] `pnpm dev` สำเร็จ เปิดหน้าเว็บว่างได้
+- [x] Tailwind classes ทำงานถูกต้อง (สี background/text ตรงตาม design tokens)
+- [x] TypeScript compile ไม่มี error
 
 ### Done when
 

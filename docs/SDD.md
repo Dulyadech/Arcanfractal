@@ -1,19 +1,19 @@
-# Arcana — Software Design Document (SDD)
+# Arcanfractal — Software Design Document (SDD)
 
 ## AI-Assisted Tarot Reading Web Application
 
-| หัวข้อ             | รายละเอียด                                                                              |
-| ------------------ | --------------------------------------------------------------------------------------- |
-| **ชื่อโปรเจกต์**   | Arcana `[Proposed]` (ตัวเลือกอื่น: _Tajai Tarot_, _Sibyl_, _Lantern_) `[Open Question]` |
-| **เวอร์ชัน**       | 2.1 (Tarot Reading Model & Lifecycle Blueprint)                                         |
-| **สถานะ**          | `[Proposed]` รอรีวิวก่อนเริ่มพัฒนา                                                      |
-| **กฎเหล็กการสุ่ม** | **"Shuffle once per Reading, select multiple cards, interpret once."**                  |
+| หัวข้อ             | รายละเอียด                                                             |
+| ------------------ | ---------------------------------------------------------------------- |
+| **ชื่อโปรเจกต์**   | **Arcanfractal** (ยืนยันแล้วจาก Q-001)                                 |
+| **เวอร์ชัน**       | 2.1 (Tarot Reading Model & Lifecycle Blueprint)                        |
+| **สถานะ**          | `[Proposed]` รอรีวิวก่อนเริ่มพัฒนา                                     |
+| **กฎเหล็กการสุ่ม** | **"Shuffle once per Reading, select multiple cards, interpret once."** |
 
 ---
 
 # 1. Overview
 
-**Arcana** คือเว็บแอปพลิเคชันเปิดไพ่ทาโรต์ส่วนบุคคลบนสมาร์ตโฟนและเดสก์ท็อป ภายใต้แนวคิด:
+**Arcanfractal** คือเว็บแอปพลิเคชันเปิดไพ่ทาโรต์ส่วนบุคคลบนสมาร์ตโฟนและเดสก์ท็อป ภายใต้แนวคิด:
 
 > **"A Ritual with an AI Voice — พิธีกรรมที่สงบ โดยมี AI เป็นเพียงผู้ช่วยอ่านความหมาย ไม่ใช่แชตบอตทั่วไป"**
 
@@ -66,26 +66,26 @@ flowchart TD
 
 # 3. Features & Scope
 
-| Feature                         | คำอธิบาย                                                                   | สถานะ      |
-| ------------------------------- | -------------------------------------------------------------------------- | ---------- |
-| **Question Guidance**           | ช่องกรอกคำถาม + แนะนำปรับรูปประโยคแบบเปิด (ไม่มีผลต่อการสุ่ม)              | `[MVP]`    |
-| **78-Card Deck Catalog**        | ข้อมูลไพ่ 78 ใบ (Major 22 + Minor 56) ภาพและคำแปลสมบูรณ์                   | `[MVP]`    |
-| **Shuffle Once Engine**         | สุ่มไพ่ครั้งเดียวต่อ 1 Reading ด้วย Web Crypto API ปลอดภัย ไร้ Modulo Bias | `[MVP]`    |
-| **No Duplicate Rule**           | ไพ่ไม่ซ้ำกันอย่างเด็ดขาดภายใน Reading เดียวกัน                             | `[MVP]`    |
-| **Progressive Card Reveal**     | ผู้ใช้จิ้มเลือกเองและเปิดทีละใบ สร้างความรู้สึกลุ้นและเป็นเจ้าของการเลือก  | `[MVP]`    |
-| **4 Core Spreads**              | 1 ใบ, 3 ใบ (Timeline & Guidance), 5 ใบ (Path)                              | `[MVP]`    |
-| **Reversed Cards**              | ไพ่กลับหัวแบบสุ่มอิสระ 50% ต่อใบ (มีสวิตช์เปิด/ปิด)                        | `[MVP]`    |
-| **Grounded AI Interpretation**  | ตีความตามไพ่จริงด้วย JSON Schema + Hallucination Guard                     | `[MVP]`    |
-| **Deterministic Fallback**      | คำทำนายสำรองจากฐานข้อมูลเมื่อ AI ล่ม ทำให้การดูดวงสำเร็จเสมอ               | `[MVP]`    |
-| **Local Reading History**       | บันทึกผลลัพธ์ในเครื่องผู้ใช้ (LocalStorage) สูงสุด 100 รายการ              | `[MVP]`    |
-| **Card Detail Sheet**           | แตะไพ่ในผลลัพธ์เพื่อเปิดดูความหมายฉบับเต็ม                                 | `[MVP]`    |
-| **Copy as Text**                | คัดลอกผลการดูดวงทั้งหมดลง Clipboard                                        | `[MVP]`    |
-| **Crisis Safety Support**       | ตรวจจับคำถามอันตราย สลับแสดงสายด่วนช่วยเหลือฉุกเฉิน                        | `[MVP]`    |
-| **Rate Limiting**               | จำกัดการเรียกใช้ AI ต่อ IP เพื่อคุมงบประมาณ                                | `[MVP]`    |
-| **User Accounts & Cloud Sync**  | สมัครสมาชิก ล็อกอิน ซิงค์ข้อมูลข้ามเครื่อง                                 | `[Future]` |
-| **Social Share & Image Export** | สร้างภาพสรุปคำทำนาย หรือแชร์ลิงก์สาธารณะ                                   | `[Future]` |
-| **AI Follow-up Chat**           | พูดคุยซักถามต่อเนื่องกับ AI                                                | `[Future]` |
-| **Celtic Cross (10 Cards)**     | Spread ขนาดใหญ่ 10 ใบ                                                      | `[Future]` |
+| Feature                         | คำอธิบาย                                                                              | สถานะ      |
+| ------------------------------- | ------------------------------------------------------------------------------------- | ---------- |
+| **Question Guidance**           | ช่องกรอกคำถาม + แนะนำปรับรูปประโยคแบบเปิด (ไม่มีผลต่อการสุ่ม)                         | `[MVP]`    |
+| **78-Card Deck Catalog**        | ข้อมูลไพ่ 78 ใบ (Major 22 + Minor 56) ภาพและคำแปลสมบูรณ์                              | `[MVP]`    |
+| **Shuffle Once Engine**         | สุ่มไพ่ครั้งเดียวต่อ 1 Reading ด้วย Web Crypto API ปลอดภัย ไร้ Modulo Bias            | `[MVP]`    |
+| **No Duplicate Rule**           | ไพ่ไม่ซ้ำกันอย่างเด็ดขาดภายใน Reading เดียวกัน                                        | `[MVP]`    |
+| **Progressive Card Reveal**     | ผู้ใช้จิ้มเลือกเองและเปิดทีละใบ สร้างความรู้สึกลุ้นและเป็นเจ้าของการเลือก             | `[MVP]`    |
+| **4 Core Spreads**              | 1 ใบ, 3 ใบ (Timeline & Guidance), 5 ใบ (Path)                                         | `[MVP]`    |
+| **Reversed Cards**              | ไพ่กลับหัวแบบสุ่มอิสระ 50% ต่อใบ (มีสวิตช์เปิด/ปิด, ค่าเริ่มต้น Off ปิดอยู่ตาม Q-002) | `[MVP]`    |
+| **Grounded AI Interpretation**  | ตีความตามไพ่จริงด้วย JSON Schema + Hallucination Guard                                | `[MVP]`    |
+| **Deterministic Fallback**      | คำทำนายสำรองจากฐานข้อมูลเมื่อ AI ล่ม ทำให้การดูดวงสำเร็จเสมอ                          | `[MVP]`    |
+| **Local Reading History**       | บันทึกผลลัพธ์ในเครื่องผู้ใช้ (LocalStorage) สูงสุด 100 รายการ                         | `[MVP]`    |
+| **Card Detail Sheet**           | แตะไพ่ในผลลัพธ์เพื่อเปิดดูความหมายฉบับเต็ม                                            | `[MVP]`    |
+| **Copy as Text**                | คัดลอกผลการดูดวงทั้งหมดลง Clipboard                                                   | `[MVP]`    |
+| **Crisis Safety Support**       | ตรวจจับคำถามอันตราย สลับแสดงสายด่วนช่วยเหลือฉุกเฉิน                                   | `[MVP]`    |
+| **Rate Limiting**               | จำกัดการเรียกใช้ AI ต่อ IP เพื่อคุมงบประมาณ                                           | `[MVP]`    |
+| **User Accounts & Cloud Sync**  | สมัครสมาชิก ล็อกอิน ซิงค์ข้อมูลข้ามเครื่อง                                            | `[Future]` |
+| **Social Share & Image Export** | สร้างภาพสรุปคำทำนาย หรือแชร์ลิงก์สาธารณะ                                              | `[Future]` |
+| **AI Follow-up Chat**           | พูดคุยซักถามต่อเนื่องกับ AI                                                           | `[Future]` |
+| **Celtic Cross (10 Cards)**     | Spread ขนาดใหญ่ 10 ใบ                                                                 | `[Future]` |
 
 ---
 
@@ -205,15 +205,15 @@ export interface AIInterpretationPayload {
 
 ### 6.2 Screen Inventory & Actions
 
-| หน้าจอ                      | เส้นทาง (Route)      | หน้าที่หลัก                                | User Actions                                           |
-| --------------------------- | -------------------- | ------------------------------------------ | ------------------------------------------------------ |
-| **Landing & Question**      | `/`                  | รับคำถามและแนะนำการตั้งประโยค              | พิมพ์คำถาม, กด Example Prompts, กด Continue            |
-| **Spread Selection**        | `/read?step=spread`  | เลือกความลึกของการดูดวง                    | เลือก Spread (1, 3, 5), สลับ Reversed toggle, กด Begin |
-| **Breathe & Shuffle**       | `/read?step=shuffle` | ปรับอารมณ์ สับไพ่ครั้งเดียว (Shuffle Once) | ทำสมาธิ 1.5s, ดูการสับไพ่ (กด Skip ได้)                |
-| **Card Selection & Reveal** | `/read?step=select`  | แตะเลือกและเปิดไพ่ทีละใบ                   | แตะไพ่คว่ำหน้า → ไพ่พลิกเปิดทีละใบจนครบ Spread         |
-| **Reading Result**          | `/read?step=result`  | แสดงคำทำนายฉบับสมบูรณ์                     | แตะไพ่เปิด Detail Sheet, กด Copy text, กด New reading  |
-| **Reading History**         | `/history`           | คลังประวัติการดูดวงในเครื่อง               | ดูรายการย้อนหลัง, กดเปิดอ่านฉบับเต็ม, ลบประวัติ        |
-| **Card Detail Sheet**       | Component Modal      | แสดงความหมายลึกของไพ่แต่ละใบ               | เลื่อนอ่านความหมาย, ปิด Sheet                          |
+| หน้าจอ                      | เส้นทาง (Route)      | หน้าที่หลัก                                | User Actions                                                             |
+| --------------------------- | -------------------- | ------------------------------------------ | ------------------------------------------------------------------------ |
+| **Landing & Question**      | `/`                  | รับคำถามและแนะนำการตั้งประโยค              | พิมพ์คำถาม, กด Example Prompts, กด Continue                              |
+| **Spread Selection**        | `/read?step=spread`  | เลือกความลึกของการดูดวง                    | เลือก Spread (1, 3, 5), สลับ Reversed toggle (ค่าเริ่มต้น Off), กด Begin |
+| **Breathe & Shuffle**       | `/read?step=shuffle` | ปรับอารมณ์ สับไพ่ครั้งเดียว (Shuffle Once) | ทำสมาธิ 1.5s, ดูการสับไพ่ (กด Skip ได้)                                  |
+| **Card Selection & Reveal** | `/read?step=select`  | แตะเลือกและเปิดไพ่ทีละใบ                   | แตะไพ่คว่ำหน้า → ไพ่พลิกเปิดทีละใบจนครบ Spread                           |
+| **Reading Result**          | `/read?step=result`  | แสดงคำทำนายฉบับสมบูรณ์                     | แตะไพ่เปิด Detail Sheet, กด Copy text, กด New reading                    |
+| **Reading History**         | `/history`           | คลังประวัติการดูดวงในเครื่อง               | ดูรายการย้อนหลัง, กดเปิดอ่านฉบับเต็ม, ลบประวัติ                          |
+| **Card Detail Sheet**       | Component Modal      | แสดงความหมายลึกของไพ่แต่ละใบ               | เลื่อนอ่านความหมาย, ปิด Sheet                                            |
 
 ---
 
@@ -257,17 +257,17 @@ graph TB
 
 ### 7.1 Technology Stack
 
-| หมวดหมู่           | เทคโนโลยีที่เลือก                                             | เหตุผลและหน้าที่ในระบบ                                                                         |
-| ------------------ | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| **Framework**      | **Next.js (App Router) + TypeScript**                         | รวม Frontend และ Serverless API Routes ไว้ใน Codebase เดียว ควบคุม Type Invariant แม่นยำ       |
-| **Styling**        | **Tailwind CSS**                                              | กำหนด Design Tokens ธีมมืด (Midnight Slate/Gold) และทำ Mobile-first Responsive สะดวก           |
-| **UI Primitives**  | **Radix UI + Lucide React**                                   | Headless Dialog/Modal/Sheet ที่เข้าถึงได้ (a11y) และไอคอนที่สวยงาม                             |
-| **Animations**     | **CSS 3D Transforms + Framer Motion**                         | แอนิเมชันพลิกไพ่ 180° (Perspective) ลื่นไหล 60 FPS บนมือถือ รองรับ Reduced Motion              |
-| **Tarot Engine**   | **Pure TypeScript (Web Crypto API)**                          | ตรรกะสับไพ่และวิเคราะห์สถิติ ไม่มี Dependency ภายนอก ทำงานได้ทั้ง Client และ Server            |
-| **AI Provider**    | **KKU IntelliShare (Primary)**<br>_(Backup: Gemini / OpenAI)_ | **Zero API Cost (ฟรีโควตาของ มข.)**, รองรับ OpenAI-compatible format เชื่อมต่อง่ายผ่าน Adapter |
-| **Client Storage** | **LocalStorage / idb-keyval**                                 | บันทึกประวัติการดูดวงในเครื่องผู้ใช้ ไม่ต้องมี Database เซิร์ฟเวอร์ ปลอดภัยและเป็นส่วนตัว      |
-| **Assets & Media** | **Rider–Waite–Smith (WebP/AVIF)**                             | รูปไพ่ 78 ใบ (Public Domain 1909) บีบอัดเหลือ 30–40 KB/รูป โหลดเร็ว ไม่เปลือง Data             |
-| **Deployment**     | **Vercel / Cloudflare Pages**                                 | รองรับ Serverless / Edge Function และ CDN ทั่วโลก ค่าใช้จ่ายเริ่มต้นเป็นศูนย์                  |
+| หมวดหมู่           | เทคโนโลยีที่เลือก                                             | เหตุผลและหน้าที่ในระบบ                                                                                                 |
+| ------------------ | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **Framework**      | **Next.js (App Router) + TypeScript**                         | รวม Frontend และ Serverless API Routes ไว้ใน Codebase เดียว ควบคุม Type Invariant แม่นยำ                               |
+| **Styling**        | **Tailwind CSS**                                              | กำหนด Design Tokens ธีมมืด (Midnight Slate/Gold) และทำ Mobile-first Responsive สะดวก                                   |
+| **UI Primitives**  | **Radix UI + Lucide React**                                   | Headless Dialog/Modal/Sheet ที่เข้าถึงได้ (a11y) และไอคอนที่สวยงาม                                                     |
+| **Animations**     | **CSS 3D Transforms + Framer Motion**                         | แอนิเมชันพลิกไพ่ 180° (Perspective) ลื่นไหล 60 FPS บนมือถือ รองรับ Reduced Motion                                      |
+| **Tarot Engine**   | **Pure TypeScript (Web Crypto API)**                          | ตรรกะสับไพ่และวิเคราะห์สถิติ ไม่มี Dependency ภายนอก ทำงานได้ทั้ง Client และ Server                                    |
+| **AI Provider**    | **KKU IntelliShare (Primary)**<br>_(Backup: Gemini / OpenAI)_ | **Zero API Cost (ฟรีโควตาของ มข.)**, รองรับ OpenAI-compatible format เชื่อมต่อง่ายผ่าน Adapter                         |
+| **Client Storage** | **LocalStorage / idb-keyval**                                 | บันทึกประวัติการดูดวงในเครื่องผู้ใช้ ไม่ต้องมี Database เซิร์ฟเวอร์ ปลอดภัยและเป็นส่วนตัว                              |
+| **Assets & Media** | **Rider–Waite–Smith (WebP/AVIF)**                             | ใช้รูปภาพ Rider–Waite–Smith จาก mixvlad/TarotCards แปลงเป็น WebP/AVIF 30–40 KB/รูป โหลดเร็ว ไม่เปลือง Data (ตาม Q-005) |
+| **Deployment**     | **Vercel / Cloudflare Pages**                                 | รองรับ Serverless / Edge Function และ CDN ทั่วโลก ค่าใช้จ่ายเริ่มต้นเป็นศูนย์                                          |
 
 ### Reading Lifecycle State Machine
 
@@ -323,9 +323,9 @@ ReadingRecord (State & History Persistence)
 
 ### 1. `POST /api/draw`
 
-- **หน้าที่:** สร้าง Deck 78 ใบ, ทำการ **Shuffle เพียงครั้งเดียว**, ดึงไพ่ $N$ ใบตาม Spread พร้อมคำนวณ Analysis
+- **หน้าที่:** สร้าง Deck 78 ใบ, ทำการ **Shuffle เพียงครั้งเดียว**, ส่ง Shuffled Deck ทั้ง 78 ใบกลับ Client เพื่อรองรับ True Index Selection (SDD §4.2, Q-004 Option A) ให้ผู้ใช้เลือกตำแหน่งด้วยตนเอง พร้อมคำนวณ Initial Analysis
 - **Request:** `{ spreadId: string, reversedEnabled: boolean }`
-- **Response:** `{ drawId: string, spreadId: string, cards: DrawnCard[], analysis: ReadingAnalysis }`
+- **Response:** `{ drawId: string, spreadId: string, deck: ShuffledCard[], analysis: ReadingAnalysis }`
 
 ### 2. `POST /api/interpret`
 
@@ -364,9 +364,11 @@ Phase 5: Polish & E2E Verification (ทดสอบ Mobile 360px, จำลอ�
 
 # 11. Open Questions (ประเด็นรอการตัดสินใจ)
 
-1. **ชื่อโปรเจกต์อย่างเป็นทางการ:** ยืนยันใช้ชื่อ **Arcana** หรือชื่ออื่น (_Tajai Tarot_, _Sibyl_, _Lantern_)?
-2. **สถานะเริ่มต้นของไพ่กลับหัว (Reversed Cards):** ให้เปิดเป็นค่าเริ่มต้น (On by default) หรือปิดไว้เพื่อให้ง่ายต่อผู้เริ่มต้น?
-3. **เบอร์สายด่วนวิกฤต (Crisis Hotline):** กำหนดเป็นเบอร์สายด่วนสุขภาพจิตไทย (1323) เป็นค่าเริ่มต้น หรือผันแปรตามภาษา/Locale?
+1. ~~**ชื่อโปรเจกต์อย่างเป็นทางการ:** ยืนยันใช้ชื่อ **Arcana** หรือชื่ออื่น (_Tajai Tarot_, _Sibyl_, _Lantern_)?~~ ✅ **Resolved: Arcanfractal** (Q-001)
+2. ~~**สถานะเริ่มต้นของไพ่กลับหัว (Reversed Cards):** ให้เปิดเป็นค่าเริ่มต้น (On by default) หรือปิดไว้เพื่อให้ง่ายต่อผู้เริ่มต้น?~~ ✅ **Resolved: Off (ปิด) เป็นค่าเริ่มต้น** (Q-002)
+3. **เบอร์สายด่วนวิกฤต (Crisis Hotline):** กำหนดเป็นเบอร์สายด่วนสุขภาพจิตไทย (1323) เป็นค่าเริ่มต้น หรือผันแปรตามภาษา/Locale? (Q-003 — รอการยืนยัน scope ภาษา)
+4. ~~**POST /api/draw ดึงไพ่ทั้ง N ใบรอบเดียว vs ดึงทีละใบ:**~~ ✅ **Resolved: Option A — ส่ง Shuffled Deck 78 ใบกลับ client ให้ user เลือกตำแหน่งเอง** (Q-004)
+5. ~~**รูปไพ่ 78 ใบ (Card Images):**~~ ✅ **Resolved: ใช้รูป Rider–Waite–Smith จาก mixvlad/TarotCards แปลงเป็น WebP/AVIF** (Q-005)
 
 ---
 
