@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { isValidSpreadId, getSpreadDefinition } from "@/data/spreads";
-import { createShuffledDeck, calculateReadingAnalysis } from "@/lib/tarot";
+import { createShuffledDeck, calculateReadingAnalysis, saveDrawSession } from "@/lib/tarot";
+import { checkRateLimit, createRateLimitResponse, applyRateLimitHeaders } from "@/lib/security";
 import type { DrawApiResponse, ApiErrorResponse } from "@/types/api";
 import type { DrawnCard } from "@/types/tarot";
 
@@ -21,6 +22,12 @@ import type { DrawnCard } from "@/types/tarot";
  * - analysis: Initial candidate analysis calculated for the spread's card count
  */
 export async function POST(request: Request): Promise<NextResponse<DrawApiResponse | ApiErrorResponse>> {
+  // 1. IP-based Rate Limiting (SDD §3, §7)
+  const rateLimit = checkRateLimit(request, { prefix: "draw" });
+  if (!rateLimit.success) {
+    return createRateLimitResponse(rateLimit);
+  }
+
   let body: unknown;
 
   try {
@@ -72,6 +79,15 @@ export async function POST(request: Request): Promise<NextResponse<DrawApiRespon
     reversedEnabled: Boolean(reversedEnabled),
   });
 
+  // Save session for Server Invariant Check (SDD §5 Guard)
+  saveDrawSession({
+    drawId,
+    spreadId,
+    reversedEnabled: Boolean(reversedEnabled),
+    deck,
+    createdAt: Date.now(),
+  });
+
   // 5. Calculate initial reading analysis for the spread
   const spreadDef = getSpreadDefinition(spreadId);
   const candidateCards: DrawnCard[] = deck.slice(0, spreadDef.cardCount).map((card, index) => ({
@@ -89,10 +105,12 @@ export async function POST(request: Request): Promise<NextResponse<DrawApiRespon
     analysis,
   };
 
-  return NextResponse.json(responsePayload, {
+  const response = NextResponse.json(responsePayload, {
     status: 200,
     headers: {
       "Cache-Control": "no-store, no-cache, must-revalidate",
     },
   });
+
+  return applyRateLimitHeaders(response, rateLimit);
 }

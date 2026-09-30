@@ -133,22 +133,22 @@ Tarot Engine เป็น Pure TypeScript module ที่ทำงานถู�
 - [x] Implement `POST /api/draw` — สร้าง deck 78 ใบ + shuffle once + ส่ง shuffled deck ทั้ง 78 ใบกลับ client + คำนวณ analysis (SDD §9.1, Q-004 confirmed)
   - Request: `{ spreadId, reversedEnabled }`
   - Response: `{ drawId, spreadId, deck (shuffled 78 cards), analysis }`
-- [ ] Implement `POST /api/interpret` — รับ drawn cards + question → เรียก AI → validate output → return หรือ fallback (SDD §9.2, §5)
+- [x] Implement `POST /api/interpret` — รับ drawn cards + question → เรียก AI → validate output → return หรือ fallback (SDD §9.2, §5)
   - Request: `{ drawId, question, spreadId, cards, analysis, locale }`
   - Response: `AIInterpretationPayload`
   - Implement Server Invariant Check: ตรวจว่าไพ่ที่ส่งมาตรงกับ drawId จริง (SDD §5 Guard)
-- [ ] Implement `GET /api/health` — ตรวจสถานะระบบและ AI provider (SDD §9.3)
-- [ ] Implement IP-based rate limiting สำหรับ API routes (SDD §3 "Rate Limiting", §7 architecture)
-- [ ] Input validation ทุก endpoint: ตรวจ spreadId, cards, question length (5-500 chars — SDD §2)
-- [ ] Error handling: คืน error response ที่ชัดเจนเมื่อ input ผิด / rate limit exceeded
+- [x] Implement `GET /api/health` — ตรวจสถานะระบบและ AI provider (SDD §9.3)
+- [x] Implement IP-based rate limiting สำหรับ API routes (SDD §3 "Rate Limiting", §7 architecture)
+- [x] Input validation ทุก endpoint: ตรวจ spreadId, cards, question length (5-500 chars — SDD §2)
+- [x] Error handling: คืน error response ที่ชัดเจนเมื่อ input ผิด / rate limit exceeded
 
 ### Verification
 
 - [x] `/api/draw` คืน shuffled deck ที่มีไพ่ 78 ใบไม่ซ้ำ + drawId ที่ unique
-- [ ] `/api/interpret` คืน structured JSON ตาม `AIInterpretationPayload` schema
-- [ ] `/api/health` คืนสถานะระบบ
-- [ ] Rate limiter ปฏิเสธ request เกินกำหนด
-- [ ] Invalid input ได้ error response ที่เหมาะสม
+- [x] `/api/interpret` คืน structured JSON ตาม `AIInterpretationPayload` schema
+- [x] `/api/health` คืนสถานะระบบ
+- [x] Rate limiter ปฏิเสธ request เกินกำหนด
+- [x] Invalid input ได้ error response ที่เหมาะสม
 
 ### Done when
 
@@ -162,27 +162,27 @@ API ทั้ง 3 endpoints ทำงานถูกต้อง มี validat
 
 ### Tasks
 
-- [ ] สร้าง AI Adapter abstraction รองรับ multi-provider (SDD §7 architecture: KKU IntelliShare primary, Gemini/OpenAI backup)
-- [ ] Implement KKU IntelliShare integration (OpenAI-compatible format — SDD §7.1)
-- [ ] Implement Gemini/OpenAI backup adapter
-- [ ] สร้าง prompt template สำหรับ Tarot interpretation:
+- [x] สร้าง AI Adapter abstraction รองรับ multi-provider (SDD §7 architecture: KKU IntelliShare primary, Gemini/OpenAI backup)
+- [x] Implement KKU IntelliShare integration (OpenAI-compatible format — SDD §7.1)
+- [x] Implement Gemini/OpenAI backup adapter
+- [x] สร้าง prompt template สำหรับ Tarot interpretation:
   - ส่ง drawn cards + positions + question + analysis
   - Enforce structured JSON output ตาม §5.2 schema
   - ใส่ข้อห้ามเด็ดขาด 3 ข้อ (§5.1): ห้ามเปลี่ยนไพ่, ห้ามเอ่ยไพ่อื่น, ห้ามทำนายเรื่องอันตราย
-- [ ] Implement Output Validation (SDD §5 flowchart):
+- [x] Implement Output Validation (SDD §5 flowchart):
   - Schema validation ตาม `AIInterpretationPayload`
   - Undrawn Card Check: ตรวจว่า AI ไม่ได้เอ่ยไพ่ที่ไม่ได้จั่ว (Zero Hallucination Guard)
-- [ ] Implement One-shot Self-Repair: หาก output หลุดกรอบ → ส่ง correction request 1 ครั้ง (SDD §5 flowchart)
-- [ ] Implement Deterministic Fallback Engine: ประกอบคำทำนายจาก deck catalog meanings เมื่อ AI ล้มเหลว/timeout (SDD §3, §5, D6)
-- [ ] Implement `safety` field detection ใน AI output: `"none" | "sensitive" | "crisis"` (SDD §5.2)
+- [x] Implement One-shot Self-Repair: หาก output หลุดกรอบ → ส่ง correction request 1 ครั้ง (SDD §5 flowchart)
+- [x] Implement Deterministic Fallback Engine: ประกอบคำทำนายจาก deck catalog meanings เมื่อ AI ล้มเหลว/timeout (SDD §3, §5, D6)
+- [x] Implement `safety` field detection ใน AI output: `"none" | "sensitive" | "crisis"` (SDD §5.2)
 
 ### Verification
 
-- [ ] AI Adapter เรียก KKU IntelliShare สำเร็จ ได้ structured JSON กลับ
-- [ ] Output validation ตรวจจับ hallucinated cards ได้ถูกต้อง
-- [ ] Self-repair ทำงานเมื่อ output ครั้งแรกหลุดกรอบ
-- [ ] Fallback engine สร้างคำทำนายจาก catalog ได้ทันทีเมื่อ AI ล่ม
-- [ ] ReadingRecord.status = `"complete"` เมื่อ AI สำเร็จ, `"fallback"` เมื่อใช้ fallback
+- [x] AI Adapter เรียก KKU IntelliShare สำเร็จ ได้ structured JSON กลับ (ทดสอบทั้ง OpenAI-compatible contract, response_format fallback, และ markdown parsing)
+- [x] Output validation ตรวจจับ hallucinated cards ได้ถูกต้อง
+- [x] Self-repair ทำงานเมื่อ output ครั้งแรกหลุดกรอบ
+- [x] Fallback engine สร้างคำทำนายจาก catalog ได้ทันทีเมื่อ AI ล่ม
+- [x] ReadingRecord.status = `"complete"` เมื่อ AI สำเร็จ, `"fallback"` เมื่อใช้ fallback
 
 ### Done when
 

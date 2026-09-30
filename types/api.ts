@@ -39,6 +39,45 @@ export interface InterpretApiRequest {
 export type InterpretApiResponse = AIInterpretationPayload;
 
 /**
+ * Health status indicators for the application and its subsystems (SDD §9.3).
+ */
+export type HealthStatus = "ok" | "degraded" | "error";
+export type ProviderHealthStatus = "healthy" | "degraded" | "unconfigured" | "error";
+
+export interface AIProviderHealthInfo {
+  name: string;
+  status: ProviderHealthStatus;
+  isPrimary: boolean;
+  model: string;
+  latencyMs?: number;
+  message?: string;
+}
+
+/**
+ * Successful response from GET /api/health (SDD §9.3).
+ */
+export interface HealthApiResponse {
+  status: HealthStatus;
+  timestamp: string;
+  uptimeSeconds: number;
+  environment: string;
+  services: {
+    tarotEngine: {
+      status: "ok";
+      catalogCardsCount: number;
+      activeDrawSessions: number;
+    };
+    aiProviders: {
+      primary: AIProviderHealthInfo;
+      backup: AIProviderHealthInfo;
+      fallbackEngine: {
+        status: "ok";
+      };
+    };
+  };
+}
+
+/**
  * Standard error response structure for API endpoints.
  */
 export interface ApiErrorResponse {
@@ -46,3 +85,4 @@ export interface ApiErrorResponse {
   code?: string;
   details?: unknown;
 }
+

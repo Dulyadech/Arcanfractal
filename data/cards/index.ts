@@ -56,6 +56,13 @@ export function getCardBySlug(slug: string): TarotCard | undefined {
 }
 
 /**
+ * Check if a string is a valid Tarot card ID.
+ */
+export function isValidCardId(id: string): boolean {
+  return id in TAROT_CARD_MAP;
+}
+
+/**
  * Retrieve all cards belonging to a specific Minor Arcana suit.
  */
 export function getCardsBySuit(suit: CardSuit): TarotCard[] {
