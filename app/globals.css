@@ -1,26 +1,112 @@
 @import "tailwindcss";
 
+@theme {
+  /* ==========================================================================
+     Midnight Mysticism - Color Palette
+     ========================================================================== */
+  --color-deep-obsidian: #0b0f19;
+  --color-midnight-slate: #151d2f;
+  --color-luminous-gold: #f59e0b;
+  --color-star-white: #f9fafb;
+
+  /* Semantic Aliases */
+  --color-background: #0b0f19;
+  --color-card: #151d2f;
+  --color-card-surface: #151d2f;
+  --color-accent: #f59e0b;
+  --color-foreground: #f9fafb;
+  --color-text: #f9fafb;
+
+  /* ==========================================================================
+     Typography
+     Headings: Serif (Cinzel / Playfair Display)
+     Body: Sans-Serif (Plus Jakarta Sans / Inter)
+     ========================================================================== */
+  --font-heading: var(--font-cinzel), var(--font-playfair), Georgia, serif;
+  --font-serif: var(--font-cinzel), var(--font-playfair), Georgia, serif;
+  --font-cinzel: var(--font-cinzel), Georgia, serif;
+  --font-playfair: var(--font-playfair), Georgia, serif;
+
+  --font-body:
+    var(--font-plus-jakarta-sans), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans:
+    var(--font-plus-jakarta-sans), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-plus-jakarta: var(--font-plus-jakarta-sans), sans-serif;
+  --font-inter: var(--font-inter), sans-serif;
+
+  /* ==========================================================================
+     Responsive Breakpoints
+     Mobile-first base (360px) & Desktop layout (1100px)
+     ========================================================================== */
+  --breakpoint-xs: 360px;
+  --breakpoint-desktop: 1100px;
+
+  /* Max widths */
+  --width-desktop-max: 1100px;
+  --max-width-desktop: 1100px;
+}
+
+/* Base custom properties */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0b0f19;
+  --foreground: #f9fafb;
+  --card: #151d2f;
+  --accent: #f59e0b;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ==========================================================================
+   Utilities for Layout & Mobile Ergonomics (Thumb Zone)
+   ========================================================================== */
+
+/* Centered desktop layout (max 1100px) */
+@utility layout-centered {
+  width: 100%;
+  max-width: 1100px;
+  margin-inline: auto;
+  padding-inline: 1rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@utility max-w-desktop {
+  max-width: 1100px;
+}
+
+/* Mobile Thumb Zone container: pinned/sticky to the bottom thumb-reachable zone */
+@utility thumb-zone {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  padding-inline: 1rem;
+  padding-top: 0.75rem;
+  padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
+  background: linear-gradient(to top, rgba(11, 15, 25, 0.95) 75%, transparent);
+  backdrop-filter: blur(8px);
+  z-index: 40;
+}
+
+/* Ergonomic Thumb Button: easy thumb press target (min 48px height) */
+@utility thumb-btn {
+  min-height: 48px;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 1rem;
+  touch-action: manipulation;
+  transition: all 0.2s ease;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-deep-obsidian);
+  color: var(--color-star-white);
+  font-family: var(--font-body);
+}
+
+::selection {
+  background-color: #f59e0b;
+  color: #0b0f19;
 }
