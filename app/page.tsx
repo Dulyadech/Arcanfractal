@@ -1,69 +1,82 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { QuestionForm } from "@/components/landing/QuestionForm";
+import { ShieldCheck, Shuffle, Eye, Layers } from "lucide-react";
+import { motion } from "framer-motion";
+import { useLanguage } from "@/lib/i18n/context";
+
+export default function LandingPage() {
+  const { t } = useLanguage();
+
   return (
-    <div className="flex flex-1 flex-col items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex w-full max-w-3xl flex-1 flex-col items-center justify-between bg-white px-16 py-32 sm:items-start dark:bg-black">
-        <Image
-          className="h-5 w-25 dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl leading-10 font-semibold tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/6 px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/8">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="relative mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-start pt-6 pb-16 sm:pt-14">
+      {/* Hero Header Section */}
+      <motion.div
+        initial={{ opacity: 0, y: -15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        className="flex w-full flex-col items-center pb-8 text-center sm:pb-10"
+      >
+        {/* Main Headline (Serif + Italic Accent like reference image) */}
+        <h1 className="font-heading max-w-2xl font-serif text-3xl leading-[1.15] font-normal tracking-tight text-white sm:text-5xl md:text-6xl">
+          {t.landing.headlinePart1} <br />
+          with{" "}
+          <span className="font-serif text-emerald-200 italic">{t.landing.headlineAccent}</span>
+        </h1>
+
+        {/* Subtitle */}
+        <p className="mt-4 max-w-lg text-xs leading-relaxed text-zinc-400 sm:text-sm md:text-base">
+          {t.landing.subtitle}
+        </p>
+      </motion.div>
+
+      {/* Centerpiece: The Cinematic Capsule Prompt Box */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98, y: 15 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.15 }}
+        className="w-full"
+      >
+        <QuestionForm />
+      </motion.div>
+
+      {/* Floating Sacred Invariant Badges (Mirrors the reference image's sponsor/proof strip) */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.3 }}
+        className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-xs text-zinc-400 sm:mt-12"
+      >
+        <div className="flex items-center gap-1.5 opacity-70 transition-opacity hover:opacity-100">
+          <Shuffle className="h-3.5 w-3.5 text-emerald-400" />
+          <span className="font-medium">Fisher-Yates Crypto RNG</span>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="bg-foreground text-background flex h-12 w-full items-center justify-center gap-2 rounded-full px-5 transition-colors hover:bg-[#383838] md:w-39.5 dark:hover:bg-[#ccc]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="h-3.5 w-4 dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/8 px-5 transition-colors hover:border-transparent hover:bg-black/4 md:w-39.5 dark:border-white/[.145] dark:hover:bg-[#1a1a1a]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className="flex items-center gap-1.5 opacity-70 transition-opacity hover:opacity-100">
+          <Layers className="h-3.5 w-3.5 text-emerald-400" />
+          <span className="font-medium">78-Card Complete Deck</span>
         </div>
-      </main>
+        <div className="flex items-center gap-1.5 opacity-70 transition-opacity hover:opacity-100">
+          <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+          <span className="font-medium">Zero Hallucination Guard</span>
+        </div>
+        <div className="flex items-center gap-1.5 opacity-70 transition-opacity hover:opacity-100">
+          <Eye className="h-3.5 w-3.5 text-emerald-400" />
+          <span className="font-medium">True Index Selection</span>
+        </div>
+      </motion.div>
+
+      {/* Subtle Second Section Preview (Like "CORE CAPABILITIES" in reference image) */}
+      <div className="mt-20 w-full border-t border-white/[0.06] pt-12 text-center sm:mt-28">
+        <span className="text-[10px] font-semibold tracking-[0.25em] text-emerald-400 uppercase">
+          Ritual Sequence
+        </span>
+        <h2 className="font-heading mt-3 font-serif text-2xl text-zinc-100 sm:text-3xl">
+          Transform questions into actionable clarity
+        </h2>
+        <p className="mx-auto mt-2 max-w-md text-xs text-zinc-400 sm:text-sm">
+          From setting an intention to shuffling once and revealing cards one by one.
+        </p>
+      </div>
     </div>
   );
 }

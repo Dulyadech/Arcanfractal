@@ -19,7 +19,14 @@ export interface DrawSession {
 const SESSION_TTL_MS = 60 * 60 * 1000;
 const MAX_SESSIONS = 5000;
 
-const sessionStore = new Map<string, DrawSession>();
+declare global {
+  var __tarot_draw_sessions__: Map<string, DrawSession> | undefined;
+}
+
+const sessionStore: Map<string, DrawSession> =
+  globalThis.__tarot_draw_sessions__ ?? new Map<string, DrawSession>();
+
+globalThis.__tarot_draw_sessions__ = sessionStore;
 
 /**
  * Removes sessions that have exceeded the TTL.

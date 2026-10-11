@@ -196,38 +196,38 @@ AI Pipeline ทำงานครบ flow: call AI → validate → self-repair 
 
 ### Tasks
 
-- [ ] สร้าง layout หลักของ app: dark theme (Midnight Mysticism), responsive mobile-first 360px → desktop 1100px (SDD §6.1, §6.2)
-- [ ] สร้างหน้า **Landing & Question** (`/`) — SDD §6.2 row 1:
+- [x] สร้าง layout หลักของ app: dark theme (Midnight Mysticism), responsive mobile-first 360px → desktop 1100px (SDD §6.1, §6.2)
+- [x] สร้างหน้า **Landing & Question** (`/`) — SDD §6.2 row 1:
   - ช่องกรอกคำถาม (5-500 chars validation)
   - Example prompts ให้กดเลือก
   - Question guidance แนะนำรูปประโยคเปิด (SDD §3 "Question Guidance")
   - ปุ่ม Continue
-- [ ] สร้างหน้า **Spread Selection** (`/read?step=spread`) — SDD §6.2 row 2:
+- [x] สร้างหน้า **Spread Selection** (`/read?step=spread`) — SDD §6.2 row 2:
   - เลือก spread (1, 3, 5 ใบ) พร้อมแสดงชื่อและ position meanings (SDD §4.5)
   - Reversed Cards toggle switch (SDD §3 "Reversed Cards")
   - ปุ่ม Begin
-- [ ] สร้างหน้า **Breathe & Shuffle** (`/read?step=shuffle`) — SDD §6.2 row 3:
+- [x] สร้างหน้า **Breathe & Shuffle** (`/read?step=shuffle`) — SDD §6.2 row 3:
   - Breathe/สมาธิ animation ~1.5s
   - Shuffle animation (แสดงการสับไพ่)
   - ปุ่ม Skip ได้
   - เรียก `POST /api/draw` ณ จุดนี้
-- [ ] Implement Reading Lifecycle State Machine ใน client (SessionStorage) — SDD §7 architecture, §7.1:
+- [x] Implement Reading Lifecycle State Machine ใน client (SessionStorage) — SDD §7 architecture, §7.1:
   - States: `NEW → SHUFFLED → SELECTING → REVEALING → COMPLETE → INTERPRETING → RESULT`
   - เก็บ state ใน SessionStorage (SDD §7 "Flow State Machine")
-- [ ] Route protection: ไม่ให้ข้ามขั้นตอน (เช่น ไปหน้า select โดยไม่ผ่าน shuffle)
+- [x] Route protection: ไม่ให้ข้ามขั้นตอน (เช่น ไปหน้า select โดยไม่ผ่าน shuffle)
 
 ### Verification
 
-- [ ] User flow: พิมพ์คำถาม → เลือก spread → ดู shuffle animation → ได้ shuffled deck จาก API
-- [ ] คำถามถูก validate (5-500 chars)
-- [ ] Spread selection แสดง 4 options ถูกต้อง
-- [ ] State machine transition ถูกต้องตามลำดับ
-- [ ] กด Back/Refresh ไม่ทำให้ state หาย (SessionStorage)
-- [ ] Mobile 360px ใช้งานได้ ปุ่มอยู่ใน thumb zone
+- [x] User flow: พิมพ์คำถาม → เลือก spread → ดู shuffle animation → ได้ shuffled deck จาก API
+- [x] คำถามถูก validate (5-500 chars)
+- [x] Spread selection แสดง 4 options ถูกต้อง
+- [x] State machine transition ถูกต้องตามลำดับ
+- [x] กด Back/Refresh ไม่ทำให้ state หาย (SessionStorage)
+- [x] Mobile 360px ใช้งานได้ ปุ่มอยู่ใน thumb zone
 
 ### Done when
 
-ผู้ใช้สามารถกรอกคำถาม เลือก spread ดู shuffle animation ได้ครบ 3 หน้าจอแรก state machine ทำงานถูกต้อง
+ผู้ใช้สามารถกรอกคำถาม เลือก spread ดู shuffle animation ได้ครบ 3 หน้าจอแรก state machine ทำงานถูกต้อง ✅ (Phase 4 Complete)
 
 ---
 
@@ -237,15 +237,15 @@ AI Pipeline ทำงานครบ flow: call AI → validate → self-repair 
 
 ### Tasks
 
-- [ ] สร้างหน้า **Card Selection & Reveal** (`/read?step=select`) — SDD §6.2 row 4:
-  - แสดงไพ่คว่ำหน้า (card back) ให้ user แตะเลือก
+- [x] สร้างหน้า **Card Selection & Reveal** (`/read?step=select`) — SDD §6.2 row 4:
+  - แสดงไพ่คว่ำหน้า (card back) ให้ user แตะเลือก (พร้อมภาพไพ่ Rider-Waite จาก `mixvlad/TarotCards`)
   - Progressive Reveal: แตะ → พลิกเปิดไพ่ 180° ด้วย 3D CSS Transform + Framer Motion 60fps (SDD §3, §7.1)
   - ไพ่ที่เปิดแล้วแสดงชื่อ + รูป + orientation (upright/reversed)
   - ไพ่ที่เลือกแล้ว disabled (No Re-pick — SDD §4.2)
   - แสดง progress: เลือกแล้ว X/N ใบ
   - Reduced Motion: สลับเป็น fade animation เมื่อ `prefers-reduced-motion` (SDD §3)
-- [ ] เมื่อเลือกครบ N ใบ → state = COMPLETE → auto-trigger `POST /api/interpret` (SDD §2 step 5)
-- [ ] สร้างหน้า **Reading Result** (`/read?step=result`) — SDD §6.2 row 5:
+- [x] เมื่อเลือกครบ N ใบ → state = COMPLETE → auto-trigger `POST /api/interpret` (SDD §2 step 5)
+- [x] สร้างหน้า **Reading Result** (`/read?step=result`) — SDD §6.2 row 5:
   - แสดง overview (ภาพรวม)
   - แสดงไพ่แต่ละใบ + position name + interpretation
   - แสดง synthesis (การเชื่อมโยง)
@@ -253,25 +253,25 @@ AI Pipeline ทำงานครบ flow: call AI → validate → self-repair 
   - แสดง reflectionQuestion (คำถามชวนคิด)
   - Loading state ระหว่างรอ AI
   - Fallback UI: แสดงผลจาก deterministic fallback พร้อมบอก user ว่าเป็น fallback (status indicator)
-- [ ] Implement **Copy as Text** — คัดลอกผลลัพธ์ทั้งหมดลง clipboard (SDD §3)
-- [ ] ปุ่ม **New Reading** — reset state → กลับไป `/` เริ่มใหม่ (SDD §6.2, §7 lifecycle)
-- [ ] สร้าง **Card Detail Sheet** (Modal/Bottom Sheet) — SDD §6.2 row 7:
+- [x] Implement **Copy as Text** — คัดลอกผลลัพธ์ทั้งหมดลง clipboard (SDD §3)
+- [x] ปุ่ม **New Reading** — reset state → กลับไป `/` เริ่มใหม่ (SDD §6.2, §7 lifecycle)
+- [x] สร้าง **Card Detail Sheet** (Modal/Bottom Sheet) — SDD §6.2 row 7:
   - แตะไพ่ในหน้า result → เปิด sheet แสดงความหมายฉบับเต็มจาก catalog
   - Radix UI Dialog/Sheet (SDD §7.1)
 
 ### Verification
 
-- [ ] เลือกไพ่ทีละใบ animation พลิก 60fps ไม่กระตุก (ทดสอบบน mobile viewport 360px)
-- [ ] ไพ่ที่เลือกแล้วกดซ้ำไม่ได้
-- [ ] เลือกครบ → เรียก API interpret → แสดงผลลัพธ์ถูกต้องตาม schema
-- [ ] Fallback ทำงานเมื่อ AI timeout/error
-- [ ] Copy ได้ข้อความครบ
-- [ ] Card Detail Sheet แสดงความหมาย upright/reversed ถูกต้อง
-- [ ] Reduced Motion: animation เปลี่ยนเป็น fade เมื่อเปิด OS setting
+- [x] เลือกไพ่ทีละใบ animation พลิก 60fps ไม่กระตุก (ทดสอบบน mobile viewport 360px)
+- [x] ไพ่ที่เลือกแล้วกดซ้ำไม่ได้
+- [x] เลือกครบ → เรียก API interpret → แสดงผลลัพธ์ถูกต้องตาม schema
+- [x] Fallback ทำงานเมื่อ AI timeout/error
+- [x] Copy ได้ข้อความครบ
+- [x] Card Detail Sheet แสดงความหมาย upright/reversed ถูกต้อง
+- [x] Reduced Motion: animation เปลี่ยนเป็น fade เมื่อเปิด OS setting
 
 ### Done when
 
-User flow ครบตั้งแต่เลือกไพ่ → เปิดทีละใบ → เห็นคำทำนาย → ดูรายละเอียดไพ่ → copy → ดูดวงใหม่ Core ritual experience ทำงานสมบูรณ์
+User flow ครบตั้งแต่เลือกไพ่ → เปิดทีละใบ → เห็นคำทำนาย → ดูรายละเอียดไพ่ → copy → ดูดวงใหม่ Core ritual experience ทำงานสมบูรณ์ ✅ (Phase 5 Complete)
 
 ---
 
@@ -281,38 +281,38 @@ User flow ครบตั้งแต่เลือกไพ่ → เปิ�
 
 ### Tasks
 
-- [ ] Implement **Local Reading History** — SDD §3, §7.1:
+- [x] Implement **Local Reading History** — SDD §3, §7.1:
   - บันทึก `ReadingRecord` ลง LocalStorage อัตโนมัติเมื่อดูดวงเสร็จ (SDD §8)
   - จำกัดสูงสุด 100 รายการ (SDD §3) — FIFO เมื่อเต็ม
   - ใช้ LocalStorage หรือ idb-keyval (SDD §7.1)
-- [ ] สร้างหน้า **Reading History** (`/history`) — SDD §6.2 row 6:
+- [x] สร้างหน้า **Reading History** (`/history`) — SDD §6.2 row 6:
   - แสดงรายการประวัติย้อนหลัง (วันที่, คำถาม, spread, ไพ่ที่ได้)
   - กดเปิดอ่านผลฉบับเต็ม
   - ลบประวัติรายการเดียวหรือทั้งหมด
-- [ ] Implement **Crisis Safety Support** — SDD §3:
+- [x] Implement **Crisis Safety Support** — SDD §3:
   - ตรวจจับคำถามที่อาจเป็นอันตราย (self-harm, suicide keywords)
   - แสดง Crisis Panel พร้อมเบอร์สายด่วน (ตาม Q-003 decision)
   - ไม่ block การใช้งาน แต่แสดง resource ช่วยเหลือ
   - ⚠️ Crisis detection ทำ client-side (keyword matching) — ไม่ส่งข้อมูลไป server
-- [ ] Implement AI `safety` field handling (SDD §5.2):
+- [x] Implement AI `safety` field handling (SDD §5.2):
   - `"crisis"` → แสดง crisis resources + คำทำนาย (ถ้ามี)
   - `"sensitive"` → แสดง disclaimer + คำทำนายปกติ
-- [ ] Edge case: browser back/forward ระหว่าง ritual flow
-- [ ] Edge case: SessionStorage หมดอายุ / ถูกเคลียร์ระหว่างดูดวง
-- [ ] Edge case: network error ระหว่างเรียก API (แสดง error + retry option)
+- [x] Edge case: browser back/forward ระหว่าง ritual flow
+- [x] Edge case: SessionStorage หมดอายุ / ถูกเคลียร์ระหว่างดูดวง
+- [x] Edge case: network error ระหว่างเรียก API (แสดง error + retry option)
 
 ### Verification
 
-- [ ] ดูดวงเสร็จ → ประวัติปรากฏใน `/history` ทันที
-- [ ] ประวัติรายการที่ 101 ทำให้รายการเก่าสุดหายไป
-- [ ] ลบประวัติแล้วข้อมูลหายจริง
-- [ ] พิมพ์คำถามที่มี crisis keywords → เห็น Crisis Panel + เบอร์สายด่วน
-- [ ] AI คืน `safety: "crisis"` → UI แสดง crisis resources
-- [ ] Network error → แสดง error message + retry ไม่ crash
+- [x] ดูดวงเสร็จ → ประวัติปรากฏใน `/history` ทันที
+- [x] ประวัติรายการที่ 101 ทำให้รายการเก่าสุดหายไป
+- [x] ลบประวัติแล้วข้อมูลหายจริง
+- [x] พิมพ์คำถามที่มี crisis keywords → เห็น Crisis Panel + เบอร์สายด่วน
+- [x] AI คืน `safety: "crisis"` → UI แสดง crisis resources
+- [x] Network error → แสดง error message + retry ไม่ crash
 
 ### Done when
 
-ระบบประวัติทำงานครบ crisis safety ตรวจจับได้ edge cases สำคัญถูกจัดการ ไม่มีจุดที่ app crash โดยไม่แสดง error
+ระบบประวัติทำงานครบ crisis safety ตรวจจับได้ edge cases สำคัญถูกจัดการ ไม่มีจุดที่ app crash โดยไม่แสดง error ✅ (Phase 6 Complete)
 
 ---
 

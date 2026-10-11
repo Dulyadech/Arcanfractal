@@ -197,9 +197,16 @@ export interface AIInterpretationPayload {
 
 # 6. UI / UX Design
 
-### 6.1 Design Tokens (Midnight Mysticism)
+### 6.1 Design Tokens (Midnight Mysticism - Aurora Palette)
 
-- **Color Palette:** Background `#0B0F19` (Deep Obsidian), Card Surface `#151D2F` (Midnight Slate), Accent `#F59E0B` (Luminous Gold), Text `#F9FAFB` (Star White)
+- **Color Palette (Locked - Lakeside Aurora Borealis):**
+  - **Light Mint (`#B4DAC3`):** แสงออโรร่าเรืองรอง (Aurora Highlight Glow), จุดสถานะ, ข้อความเน้น
+  - **Teal / Seafoam Green (`#39977F`):** สี Accent หลัก, ปุ่ม Action สำคัญ, ขอบโฟกัส
+  - **Deep Royal Blue (`#001D83`):** มิติความลึกของท้องฟ้ายามราตรีและเงามืดลึก
+  - **Vibrant Purple (`#3D276F`):** โทนแสงหมอก Nebula และออร่าความลึกลับ
+  - **Deep Indigo (`#1D1640`):** พื้นผิวการ์ด (Card Surface / Shadow Void)
+  - **Deep Obsidian (`#070B0E`):** พื้นหลังหลักของระบบ (Main Canvas Background)
+  - **Star White (`#F9FAFB`):** ตัวหนังสือหลัก (Primary Text)
 - **Typography:** Headings ใช้ฟอนต์ Serif (`Cinzel` / `Playfair Display`), Body ใช้ฟอนต์ Sans-Serif (`Plus Jakarta Sans` / `Inter`)
 - **Responsive:** Mobile-first (360px), วางปุ่มกดในระยะนิ้วโป้ง (Thumb Zone), Desktop ปรับเป็น Centered Layout สูงสุด 1100px
 
@@ -260,7 +267,7 @@ graph TB
 | หมวดหมู่           | เทคโนโลยีที่เลือก                                             | เหตุผลและหน้าที่ในระบบ                                                                                                 |
 | ------------------ | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | **Framework**      | **Next.js (App Router) + TypeScript**                         | รวม Frontend และ Serverless API Routes ไว้ใน Codebase เดียว ควบคุม Type Invariant แม่นยำ                               |
-| **Styling**        | **Tailwind CSS**                                              | กำหนด Design Tokens ธีมมืด (Midnight Slate/Gold) และทำ Mobile-first Responsive สะดวก                                   |
+| **Styling**        | **Tailwind CSS**                                              | กำหนด Design Tokens ธีม Aurora (Lakeside Aurora Borealis) และทำ Mobile-first Responsive สะดวก                          |
 | **UI Primitives**  | **Radix UI + Lucide React**                                   | Headless Dialog/Modal/Sheet ที่เข้าถึงได้ (a11y) และไอคอนที่สวยงาม                                                     |
 | **Animations**     | **CSS 3D Transforms + Framer Motion**                         | แอนิเมชันพลิกไพ่ 180° (Perspective) ลื่นไหล 60 FPS บนมือถือ รองรับ Reduced Motion                                      |
 | **Tarot Engine**   | **Pure TypeScript (Web Crypto API)**                          | ตรรกะสับไพ่และวิเคราะห์สถิติ ไม่มี Dependency ภายนอก ทำงานได้ทั้ง Client และ Server                                    |

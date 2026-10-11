@@ -9,7 +9,6 @@ import type {
   AIInterpretationPayload,
   ContextualCardInterpretation,
   AnswerDirection,
-  PrimaryAnswerPayload,
   FollowUpAnswerPayload,
   StructuredAnswerPayload,
 } from "@/types/ai";

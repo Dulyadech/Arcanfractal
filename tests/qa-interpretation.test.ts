@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
 import { analyzeQuestion } from "@/lib/ai/intent";
-import { buildSystemPrompt, buildUserPrompt } from "@/lib/ai/prompt";
 import { generateDeterministicFallback } from "@/lib/ai/fallback";
 import { validateAIInterpretation } from "@/lib/ai/validation";
 import type { DrawnCard } from "@/types/tarot";

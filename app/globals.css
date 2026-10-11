@@ -2,20 +2,26 @@
 
 @theme {
   /* ==========================================================================
-     Midnight Mysticism - Color Palette
+     Lakeside Aurora Borealis - Locked Palette (SDD §6.1)
      ========================================================================== */
-  --color-deep-obsidian: #0b0f19;
-  --color-midnight-slate: #151d2f;
-  --color-luminous-gold: #f59e0b;
+  --color-aurora-mint: #b4dac3;
+  --color-aurora-teal: #39977f;
+  --color-aurora-royal: #001d83;
+  --color-aurora-purple: #3d276f;
+  --color-aurora-indigo: #1d1640;
+
+  --color-deep-obsidian: #070b0e;
+  --color-midnight-slate: #14181d;
   --color-star-white: #f9fafb;
 
   /* Semantic Aliases */
-  --color-background: #0b0f19;
-  --color-card: #151d2f;
-  --color-card-surface: #151d2f;
-  --color-accent: #f59e0b;
+  --color-background: #070b0e;
+  --color-card: #14181d;
+  --color-card-surface: #14181d;
+  --color-accent: #39977f;
   --color-foreground: #f9fafb;
   --color-text: #f9fafb;
+  --color-luminous-gold: #b4dac3;
 
   /* ==========================================================================
      Typography
@@ -36,26 +42,40 @@
 
   /* ==========================================================================
      Responsive Breakpoints
-     Mobile-first base (360px) & Desktop layout (1100px)
      ========================================================================== */
   --breakpoint-xs: 360px;
   --breakpoint-desktop: 1100px;
-
-  /* Max widths */
   --width-desktop-max: 1100px;
   --max-width-desktop: 1100px;
+
+  /* Animations */
+  --animate-aurora: aurora 60s linear infinite;
+  --animate-aurora-fast: aurora 25s ease-in-out infinite alternate;
+}
+
+@keyframes aurora {
+  from {
+    background-position:
+      50% 50%,
+      50% 50%;
+  }
+  to {
+    background-position:
+      350% 50%,
+      350% 50%;
+  }
 }
 
 /* Base custom properties */
 :root {
-  --background: #0b0f19;
+  --background: #030712;
   --foreground: #f9fafb;
-  --card: #151d2f;
-  --accent: #f59e0b;
+  --card: #0b0f19;
+  --accent: #10b981;
 }
 
 /* ==========================================================================
-   Utilities for Layout & Mobile Ergonomics (Thumb Zone)
+   Minimalist & Mobile Ergonomics Utilities
    ========================================================================== */
 
 /* Centered desktop layout (max 1100px) */
@@ -70,7 +90,7 @@
   max-width: 1100px;
 }
 
-/* Mobile Thumb Zone container: pinned/sticky to the bottom thumb-reachable zone */
+/* Mobile Thumb Zone container */
 @utility thumb-zone {
   position: sticky;
   bottom: 0;
@@ -80,12 +100,12 @@
   padding-inline: 1rem;
   padding-top: 0.75rem;
   padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
-  background: linear-gradient(to top, rgba(11, 15, 25, 0.95) 75%, transparent);
-  backdrop-filter: blur(8px);
+  background: linear-gradient(to top, rgba(3, 7, 18, 0.95) 75%, transparent);
+  backdrop-filter: blur(16px);
   z-index: 40;
 }
 
-/* Ergonomic Thumb Button: easy thumb press target (min 48px height) */
+/* Minimalist Ergonomic Thumb Button */
 @utility thumb-btn {
   min-height: 48px;
   width: 100%;
@@ -93,11 +113,26 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  border-radius: 0.75rem;
-  font-weight: 600;
-  font-size: 1rem;
+  border-radius: 0.875rem;
+  font-weight: 500;
+  font-size: 0.95rem;
   touch-action: manipulation;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Modern Minimal Card */
+@utility minimal-card {
+  background: rgba(11, 15, 25, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+/* Aurora Glow Border utility */
+@utility aurora-border {
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.15);
 }
 
 body {
@@ -107,6 +142,6 @@ body {
 }
 
 ::selection {
-  background-color: #f59e0b;
-  color: #0b0f19;
+  background-color: #10b981;
+  color: #030712;
 }
