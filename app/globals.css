@@ -25,20 +25,22 @@
 
   /* ==========================================================================
      Typography
-     Headings: Serif (Cinzel / Playfair Display)
-     Body: Sans-Serif (Plus Jakarta Sans / Inter)
+     Headings: Serif (Cinzel / Playfair Display) + Sarabun
+     Body: Sans-Serif (Plus Jakarta Sans / Inter) + Sarabun
+     Thai font: Sarabun
      ========================================================================== */
-  --font-heading: var(--font-cinzel), var(--font-playfair), Georgia, serif;
-  --font-serif: var(--font-cinzel), var(--font-playfair), Georgia, serif;
+  --font-heading: var(--font-cinzel), var(--font-playfair), var(--font-sarabun), Georgia, serif;
+  --font-serif: var(--font-cinzel), var(--font-playfair), var(--font-sarabun), Georgia, serif;
   --font-cinzel: var(--font-cinzel), Georgia, serif;
   --font-playfair: var(--font-playfair), Georgia, serif;
 
   --font-body:
-    var(--font-plus-jakarta-sans), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+    var(--font-plus-jakarta-sans), var(--font-inter), var(--font-sarabun), ui-sans-serif, system-ui, sans-serif;
   --font-sans:
-    var(--font-plus-jakarta-sans), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+    var(--font-plus-jakarta-sans), var(--font-inter), var(--font-sarabun), ui-sans-serif, system-ui, sans-serif;
   --font-plus-jakarta: var(--font-plus-jakarta-sans), sans-serif;
   --font-inter: var(--font-inter), sans-serif;
+  --font-sarabun: var(--font-sarabun), sans-serif;
 
   /* ==========================================================================
      Responsive Breakpoints
@@ -135,10 +137,53 @@
   box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.15);
 }
 
+html {
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+@media (min-width: 640px) {
+  html {
+    font-size: 18px;
+    line-height: 1.75;
+  }
+}
+
 body {
   background-color: var(--color-deep-obsidian);
   color: var(--color-star-white);
   font-family: var(--font-body);
+  line-height: inherit;
+  letter-spacing: 0.01em;
+}
+
+/* ==========================================================================
+   Sleek Custom Scrollbar (Compact & Modern Emerald-Dark Style)
+   ========================================================================== */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(57, 151, 127, 0.35) rgba(7, 11, 14, 0.4);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(7, 11, 14, 0.6);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(57, 151, 127, 0.35);
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.65);
 }
 
 ::selection {

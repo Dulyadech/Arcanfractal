@@ -74,7 +74,15 @@ export async function POST(
   const validatedCards = cards as DrawnCard[];
   const validatedSpreadId = spreadId as SpreadId;
   const validatedQuestion = (question as string).trim();
-  const requestLocale = typeof locale === "string" ? locale : "th";
+  
+  // Auto-detect question language (Thai vs English):
+  // If question contains Thai characters, always respond in Thai; otherwise default to requested locale or English.
+  const hasThaiChars = /[\u0E00-\u0E7F]/.test(validatedQuestion);
+  const requestLocale = hasThaiChars
+    ? "th"
+    : typeof locale === "string" && locale.toLowerCase().startsWith("th")
+      ? "th"
+      : "en";
 
   // 2. Re-compute deterministic analysis on server to guarantee grounded facts integrity (SDD §4.6)
   const computedAnalysis = calculateReadingAnalysis(validatedCards);

@@ -236,7 +236,6 @@ export default function HistoryPage() {
                               className={`object-cover ${
                                 c.orientation === "reversed" ? "rotate-180" : ""
                               }`}
-                              unoptimized
                             />
                           )}
                         </div>

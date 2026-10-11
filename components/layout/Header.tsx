@@ -21,7 +21,7 @@ export function Header() {
             <Moon className="h-4 w-4 fill-emerald-300/30 text-emerald-300" />
           </div>
           <span className="font-heading font-serif text-base font-medium tracking-wide text-zinc-100 sm:text-lg">
-            Tarot Tajai
+            Arcanfractal
           </span>
         </Link>
 

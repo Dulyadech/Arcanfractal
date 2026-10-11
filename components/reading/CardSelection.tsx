@@ -47,6 +47,11 @@ export function CardSelection() {
   const [interpretError, setInterpretError] = useState<string | null>(null);
   const [interpretErrorCode, setInterpretErrorCode] = useState<string | null>(null);
 
+  // New state: Tracks how many cards have been revealed progressively (0, 1, 2, ...).
+  // Starts at 0: all picked cards remain face-down until user clicks Begin Reading.
+  const [revealedCount, setRevealedCount] = useState<number>(0);
+  const [isRevealingSequence, setIsRevealingSequence] = useState<boolean>(false);
+
   const hasTriggeredInterpretRef = useRef(false);
 
   // Restore and initialize session
@@ -124,6 +129,25 @@ export function CardSelection() {
     [locale, router]
   );
 
+  // Sequential Progressive Revelation: Flip card 1, then card 2, then card 3, then proceed to result
+  const handleStartRevealAndInterpret = async () => {
+    if (!isSelectionComplete || isRevealingSequence || isInterpreting) return;
+    setIsRevealingSequence(true);
+
+    const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    // Progressively reveal cards one by one (1, 2, 3...) with dramatic flip timing
+    for (let i = 1; i <= selectedCards.length; i++) {
+      setRevealedCount(i);
+      await delay(900); // 900ms per card reveal
+    }
+
+    // Brief pause to admire the fully revealed spread, then proceed to interpretation
+    await delay(600);
+    saveDrawnCards(selectedCards, selectedIndices, true);
+    triggerInterpretation(selectedCards);
+  };
+
   // Handle User selecting a card from the 78-card deck (True Index Selection)
   const handleSelectDeckCard = (deckIndex: number) => {
     if (selectedCards.length >= targetCount) return;
@@ -148,8 +172,8 @@ export function CardSelection() {
     setSelectedCards(nextSelectedCards);
     setSelectedIndices(nextSelectedIndices);
 
-    const isComplete = nextSelectedCards.length === targetCount;
-    saveDrawnCards(nextSelectedCards, nextSelectedIndices, isComplete);
+    // Keep session in SELECTING state until cards are revealed and interpretation is started
+    saveDrawnCards(nextSelectedCards, nextSelectedIndices, false);
   };
 
   const handleOpenDetailModal = (drawnCard: DrawnCard) => {
@@ -224,7 +248,9 @@ export function CardSelection() {
           {currentSpread.positions.map((pos: SpreadPosition, index: number) => {
             const drawnCard = selectedCards[index];
             const cardData = drawnCard ? getCardById(drawnCard.cardId) : null;
-            const isFilled = Boolean(drawnCard && cardData);
+            const isChosen = Boolean(drawnCard && cardData);
+            // Card is revealed only if sequential revealing has reached or passed this index
+            const isRevealed = isChosen && index < revealedCount;
 
             return (
               <div key={pos.key} className="flex flex-col items-center justify-between">
@@ -236,32 +262,46 @@ export function CardSelection() {
                   <span className="text-xs font-medium text-zinc-300">{pos.name}</span>
                 </div>
 
-                {/* Card Container with 3D Progressive Flip */}
+                {/* Card Container with 3D Flip */}
                 <div
                   className="relative aspect-[2/3] w-28 overflow-hidden rounded-xl border sm:w-36 md:w-40"
                   style={{
                     perspective: "1000px",
                   }}
                 >
-                  <AnimatePresence mode="wait">
-                    {isFilled && cardData && drawnCard ? (
-                      /* Revealed Card Artwork Face */
-                      <motion.div
-                        key={`revealed-${cardData.id}`}
-                        initial={
-                          shouldReduceMotion
-                            ? { opacity: 0, scale: 0.95 }
-                            : { rotateY: 180, opacity: 0 }
-                        }
-                        animate={
-                          shouldReduceMotion ? { opacity: 1, scale: 1 } : { rotateY: 0, opacity: 1 }
-                        }
-                        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                        onClick={() => handleOpenDetailModal(drawnCard)}
-                        className={`group relative h-full w-full cursor-pointer rounded-xl border border-[#39977f]/40 bg-[#14181d] shadow-[0_10px_25px_rgba(0,0,0,0.7)] transition-all hover:scale-[1.02] hover:border-emerald-400 ${
+                  {isChosen && cardData && drawnCard ? (
+                    <div
+                      className="group relative h-full w-full cursor-pointer rounded-xl [transform-style:preserve-3d] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                      style={{
+                        transform: isRevealed ? "rotateY(180deg)" : "rotateY(0deg)",
+                      }}
+                      onClick={() => isRevealed && handleOpenDetailModal(drawnCard)}
+                      title={
+                        isRevealed
+                          ? `${cardData.name} (${drawnCard.orientation}) — ${t.select.detailPrompt}`
+                          : `Card #${index + 1} Selected`
+                      }
+                    >
+                      {/* Face-Down Back of Card (Shown when rotateY is 0) */}
+                      <div className="absolute inset-0 h-full w-full overflow-hidden rounded-xl border border-emerald-500/40 bg-gradient-to-b from-[#1d1640] via-[#0e1320] to-[#070b0e] shadow-[0_8px_20px_rgba(0,0,0,0.6)] [backface-visibility:hidden]">
+                        <Image
+                          src={getCardBackImageUrl()}
+                          alt="Card Face Down"
+                          fill
+                          sizes="(max-width: 640px) 112px, (max-width: 768px) 144px, 160px"
+                          className="object-cover"
+                        />
+                        <div className="pointer-events-none absolute inset-0 bg-emerald-500/10" />
+                        <div className="absolute top-1.5 right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/80 text-[10px] font-bold text-black shadow">
+                          ✓
+                        </div>
+                      </div>
+
+                      {/* Face-Up Front of Card (Shown when rotateY is 180) */}
+                      <div
+                        className={`absolute inset-0 h-full w-full overflow-hidden rounded-xl border border-[#39977f]/50 bg-[#14181d] shadow-[0_10px_25px_rgba(0,0,0,0.7)] [backface-visibility:hidden] hover:border-emerald-400 [transform:rotateY(180deg)] ${
                           drawnCard.orientation === "reversed" ? "rotate-180" : ""
                         }`}
-                        title={`${cardData.name} (${drawnCard.orientation}) — ${t.select.detailPrompt}`}
                       >
                         <Image
                           src={getCardImageUrl(cardData.id)}
@@ -269,32 +309,31 @@ export function CardSelection() {
                           fill
                           sizes="(max-width: 640px) 112px, (max-width: 768px) 144px, 160px"
                           className="object-cover"
-                          unoptimized
                         />
 
-                        {/* Subtle Information Pill overlay */}
+                        {/* Information Pill overlay */}
                         <div className="absolute inset-x-0 bottom-0 flex items-center justify-center bg-black/60 py-1 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
                           <span className="flex items-center gap-1 text-[10px] text-zinc-200">
                             <Info className="h-3 w-3" />
                             <span>{t.result.viewCardDetails}</span>
                           </span>
                         </div>
-                      </motion.div>
-                    ) : (
-                      /* Empty Slot Waiting for Selection */
-                      <div className="flex h-full w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-white/15 bg-white/[0.02] p-2 text-center transition-colors">
-                        <Layers className="h-5 w-5 text-zinc-600 sm:h-6 sm:w-6" />
-                        <span className="mt-2 text-[10px] text-zinc-500 sm:text-xs">
-                          {index === selectedCards.length ? "Pick Next Card" : `Card #${index + 1}`}
-                        </span>
                       </div>
-                    )}
-                  </AnimatePresence>
+                    </div>
+                  ) : (
+                    /* Empty Slot Waiting for Selection */
+                    <div className="flex h-full w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-white/15 bg-white/[0.02] p-2 text-center transition-colors">
+                      <Layers className="h-5 w-5 text-zinc-600 sm:h-6 sm:w-6" />
+                      <span className="mt-2 text-[10px] text-zinc-500 sm:text-xs">
+                        {index === selectedCards.length ? "Pick Next Card" : `Card #${index + 1}`}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Subtext below slot */}
                 <div className="mt-2 min-h-[20px] text-center">
-                  {isFilled && cardData && drawnCard ? (
+                  {isChosen && isRevealed && cardData && drawnCard ? (
                     <div className="flex items-center justify-center gap-1">
                       <span className="text-[11px] font-medium text-emerald-300">
                         {cardData.name}
@@ -305,6 +344,10 @@ export function CardSelection() {
                         </span>
                       )}
                     </div>
+                  ) : isChosen && !isRevealed ? (
+                    <span className="text-[10px] font-medium text-emerald-400">
+                      Card #{index + 1} Selected
+                    </span>
                   ) : (
                     <span className="text-[10px] text-zinc-500 italic">{pos.description}</span>
                   )}
@@ -316,7 +359,7 @@ export function CardSelection() {
       </div>
 
       {/* Manual Interpretation CTA Trigger */}
-      {isSelectionComplete && !isInterpreting && (
+      {isSelectionComplete && !isInterpreting && !isRevealingSequence && (
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -325,15 +368,32 @@ export function CardSelection() {
         >
           <button
             type="button"
-            onClick={() => triggerInterpretation(selectedCards)}
+            onClick={handleStartRevealAndInterpret}
             className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-full bg-gradient-to-r from-[#22c55e] via-[#39977f] to-[#10b981] px-8 py-4 text-base font-semibold text-black shadow-[0_0_35px_rgba(34,197,94,0.45)] transition-all hover:scale-[1.02] hover:shadow-[0_0_50px_rgba(34,197,94,0.65)] active:scale-[0.98]"
           >
             <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
             <Sparkles className="h-5 w-5 text-black" />
-            <span className="tracking-wide">{t.select.interpretBtn}</span>
+            <span className="tracking-wide">เริ่มเปิดไพ่ &amp; ทำนาย</span>
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </button>
-          <p className="mt-2.5 text-xs text-zinc-400">{t.select.interpretBtnSub}</p>
+          <p className="mt-2.5 text-xs text-zinc-400">
+            เลือกไพ่ครบแล้ว คลิกเพื่อเปิดไพ่ทีละใบและเริ่มการสังเคราะห์คำทำนาย
+          </p>
+        </motion.div>
+      )}
+
+      {/* Sequential Revealing Animation Indicator */}
+      {isRevealingSequence && !isInterpreting && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8 flex flex-col items-center rounded-2xl border border-emerald-500/30 bg-[#0c1017]/90 px-6 py-4 text-center shadow-lg backdrop-blur-md"
+        >
+          <div className="flex items-center gap-2 text-emerald-300 font-medium text-sm">
+            <Sparkles className="h-4 w-4 animate-spin text-emerald-400" />
+            <span>กำลังเปิดไพ่ใบที่ {Math.min(revealedCount > 0 ? revealedCount : 1, targetCount)} / {targetCount}...</span>
+          </div>
+          <p className="mt-1 text-xs text-zinc-400">รวบรวมพลังงานและเปิดเผยข้อความแห่งโชคชะตา</p>
         </motion.div>
       )}
 
@@ -401,53 +461,50 @@ export function CardSelection() {
             </span>
           </div>
 
-          {/* Elegant Horizontal Fanned Deck Strip */}
-          <div className="relative w-full overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0c1017]/80 p-4 shadow-xl backdrop-blur-xl sm:p-6">
-            <div className="flex [scrollbar-width:thin] [scrollbar-color:#39977f_transparent] overflow-x-auto pt-2 pb-4">
-              <div className="flex items-center gap-2 px-2 sm:gap-2.5">
-                {deck.map((_, index) => {
-                  const isSelected = selectedIndices.includes(index);
+          {/* Elegant Multi-Row Fanned Deck Grid (No horizontal scrolling) */}
+          <div className="relative w-full rounded-2xl border border-white/[0.08] bg-[#0c1017]/85 p-3 shadow-2xl backdrop-blur-xl sm:p-5">
+            <div className="grid grid-cols-6 gap-1.5 sm:grid-cols-9 sm:gap-2 md:grid-cols-11 md:gap-2 lg:grid-cols-13">
+              {deck.map((_, index) => {
+                const isSelected = selectedIndices.includes(index);
 
-                  return (
-                    <motion.button
-                      key={index}
-                      type="button"
-                      disabled={isSelected || isInterpreting}
-                      onClick={() => handleSelectDeckCard(index)}
-                      whileHover={!isSelected && !isInterpreting ? { y: -12, scale: 1.05 } : {}}
-                      whileTap={!isSelected && !isInterpreting ? { scale: 0.95 } : {}}
-                      className={`group relative aspect-[2/3] w-14 shrink-0 overflow-hidden rounded-lg border text-left transition-all sm:w-16 ${
-                        isSelected
-                          ? "cursor-not-allowed border-white/5 opacity-25 grayscale"
-                          : "cursor-pointer border-[#39977f]/40 bg-gradient-to-b from-[#1d1640] via-[#0e1320] to-[#070b0e] shadow-[0_5px_15px_rgba(0,0,0,0.5)] hover:border-emerald-400 hover:shadow-[0_0_20px_rgba(57,151,127,0.4)]"
-                      }`}
-                      aria-label={`Draw card #${index + 1}`}
-                    >
-                      {/* Mystical Card Back Image or Ornament */}
-                      <Image
-                        src={getCardBackImageUrl()}
-                        alt="Tarot Card Back"
-                        fill
-                        sizes="64px"
-                        className="object-cover"
-                        unoptimized
-                      />
+                return (
+                  <motion.button
+                    key={index}
+                    type="button"
+                    disabled={isSelected || isInterpreting}
+                    onClick={() => handleSelectDeckCard(index)}
+                    whileHover={!isSelected && !isInterpreting ? { y: -8, scale: 1.08, zIndex: 10 } : {}}
+                    whileTap={!isSelected && !isInterpreting ? { scale: 0.95 } : {}}
+                    className={`group relative aspect-[2/3] w-full overflow-hidden rounded-md border text-left transition-all ${
+                      isSelected
+                        ? "cursor-not-allowed border-white/5 opacity-20 grayscale"
+                        : "cursor-pointer border-[#39977f]/40 bg-gradient-to-b from-[#1d1640] via-[#0e1320] to-[#070b0e] shadow-[0_4px_12px_rgba(0,0,0,0.5)] hover:border-emerald-400 hover:shadow-[0_0_16px_rgba(57,151,127,0.5)]"
+                    }`}
+                    aria-label={`Draw card #${index + 1}`}
+                  >
+                    {/* Mystical Card Back Image */}
+                    <Image
+                      src={getCardBackImageUrl()}
+                      alt="Tarot Card Back"
+                      fill
+                      sizes="(max-width: 640px) 16vw, (max-width: 1024px) 10vw, 8vw"
+                      className="object-cover"
+                    />
 
-                      {/* Selected checkmark indicator */}
-                      {isSelected && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/60">
-                          <CheckCircle2 className="h-5 w-5 text-emerald-400" />
-                        </div>
-                      )}
-
-                      {/* Card Number Index */}
-                      <div className="absolute top-1 left-1 rounded bg-black/60 px-1 py-0.5 font-mono text-[8px] text-zinc-400">
-                        {index + 1}
+                    {/* Selected checkmark indicator */}
+                    {isSelected && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/70">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-400" />
                       </div>
-                    </motion.button>
-                  );
-                })}
-              </div>
+                    )}
+
+                    {/* Card Number Index */}
+                    <div className="absolute top-0.5 left-0.5 rounded bg-black/60 px-1 py-0.2 font-mono text-[7px] text-zinc-400 sm:text-[8px]">
+                      {index + 1}
+                    </div>
+                  </motion.button>
+                );
+              })}
             </div>
           </div>
         </div>

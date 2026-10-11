@@ -20,27 +20,19 @@ describe("Rider-Waite Tarot Card Image Mapping (SDD §7.1, Phase 5)", () => {
     });
   });
 
-  it("generates correct full CDN URLs from mixvlad/TarotCards repository", () => {
+  it("generates correct local optimized WebP URLs (SDD §7.1)", () => {
     const foolUrl = getCardImageUrl("fool");
-    expect(foolUrl).toBe(
-      "https://raw.githubusercontent.com/mixvlad/TarotCards/main/tarot/rider-waite/full-png/00_Fool.png"
-    );
+    expect(foolUrl).toBe("/cards/00_Fool.webp");
 
     const aceWandsUrl = getCardImageUrl("wands-01");
-    expect(aceWandsUrl).toBe(
-      "https://raw.githubusercontent.com/mixvlad/TarotCards/main/tarot/rider-waite/full-png/Wands01.png"
-    );
+    expect(aceWandsUrl).toBe("/cards/Wands01.webp");
 
     const queenPentaclesUrl = getCardImageUrl("pentacles-13");
-    expect(queenPentaclesUrl).toBe(
-      "https://raw.githubusercontent.com/mixvlad/TarotCards/main/tarot/rider-waite/full-png/Pents13.png"
-    );
+    expect(queenPentaclesUrl).toBe("/cards/Pents13.webp");
   });
 
-  it("returns the standard card back cover image", () => {
+  it("returns the standard card back cover WebP image", () => {
     const backUrl = getCardBackImageUrl();
-    expect(backUrl).toBe(
-      "https://raw.githubusercontent.com/mixvlad/TarotCards/main/tarot/rider-waite/full-png/Cover.png"
-    );
+    expect(backUrl).toBe("/cards/Cover.webp");
   });
 });

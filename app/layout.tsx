@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Cinzel, Playfair_Display, Plus_Jakarta_Sans, Inter } from "next/font/google";
+import { Cinzel, Playfair_Display, Plus_Jakarta_Sans, Inter, Sarabun } from "next/font/google";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CaveMoonlightBackground } from "@/components/layout/CaveMoonlightBackground";
@@ -30,10 +30,45 @@ const inter = Inter({
   display: "swap",
 });
 
+const sarabun = Sarabun({
+  variable: "--font-sarabun",
+  weight: ["300", "400", "500", "600", "700"],
+  subsets: ["thai", "latin"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "Tarot Tajai — Inquire with AI-Powered Tarot",
+  title: "Arcanfractal — Inquire with AI-Powered Tarot",
   description:
-    "A contemplative Tarot sanctuary offering grounded, reflective readings powered by AI and timeless wisdom.",
+    "A contemplative Tarot sanctuary offering grounded, reflective readings powered by AI and timeless Rider-Waite wisdom. Free, unbiased, and private.",
+  keywords: [
+    "Tarot",
+    "Tarot Reading",
+    "AI Tarot",
+    "Arcanfractal",
+    "Rider-Waite",
+    "Spiritual Reflection",
+    "Daily Tarot",
+  ],
+  authors: [{ name: "Arcanfractal" }],
+  openGraph: {
+    title: "Arcanfractal — Inquire with AI-Powered Tarot",
+    description:
+      "A contemplative Tarot sanctuary offering grounded, reflective readings powered by AI and timeless Rider-Waite wisdom.",
+    siteName: "Arcanfractal",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Arcanfractal — Inquire with AI-Powered Tarot",
+    description:
+      "A contemplative Tarot sanctuary offering grounded, reflective readings powered by AI and timeless Rider-Waite wisdom.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export const viewport: Viewport = {
@@ -51,7 +86,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${cinzel.variable} ${playfairDisplay.variable} ${plusJakartaSans.variable} ${inter.variable} dark h-full antialiased`}
+      className={`${cinzel.variable} ${playfairDisplay.variable} ${plusJakartaSans.variable} ${inter.variable} ${sarabun.variable} dark h-full antialiased`}
     >
       <body className="font-body relative flex min-h-screen flex-col overflow-x-hidden bg-[#070b0e] text-zinc-100 selection:bg-emerald-500 selection:text-black">
         <LanguageProvider>

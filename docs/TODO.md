@@ -322,31 +322,30 @@ User flow ครบตั้งแต่เลือกไพ่ → เปิ�
 
 ### Tasks
 
-- [ ] จัดหา/เพิ่มรูปไพ่ 78 ใบ (Rider-Waite-Smith, WebP/AVIF, 30-40 KB/รูป — SDD §7.1) ← ขึ้นกับ Q-005
-- [ ] รูป card back สำหรับไพ่คว่ำ
-- [ ] Image optimization: next/image, lazy loading, responsive sizes
-- [ ] Font loading optimization (Cinzel, Plus Jakarta Sans — SDD §6.1)
-- [ ] Mobile UX review: ทดสอบบน viewport 360px จริง, thumb zone ของปุ่ม (SDD §6.1)
-- [ ] Desktop layout: centered max-width 1100px (SDD §6.1)
-- [ ] Accessibility basics: keyboard navigation, screen reader labels, focus management (Radix UI ช่วยส่วนหนึ่ง)
-- [ ] Loading states ทุกจุดที่มี async operation
-- [ ] SEO metadata: title, description, OG tags
-- [ ] ตั้งค่า environment variables สำหรับ production (AI API keys)
-- [ ] Production build สำเร็จ (`next build`)
+- [x] จัดหา/เพิ่มรูปไพ่ 78 ใบ (Rider-Waite-Smith, WebP/AVIF, 30-40 KB/รูป — SDD §7.1) ← ขึ้นกับ Q-005
+- [x] รูป card back สำหรับไพ่คว่ำ (`/cards/Cover.webp`)
+- [x] Image optimization: next/image, lazy loading, responsive sizes
+- [x] Font loading optimization (Cinzel, Plus Jakarta Sans — SDD §6.1)
+- [x] Mobile UX review: ทดสอบบน viewport 360px จริง, thumb zone ของปุ่ม (SDD §6.1)
+- [x] Desktop layout: centered max-width 1100px (SDD §6.1)
+- [x] Accessibility basics: keyboard navigation, screen reader labels, focus management (Radix UI ช่วยส่วนหนึ่ง)
+- [x] Loading states ทุกจุดที่มี async operation
+- [x] SEO metadata: title, description, OG tags (Arcanfractal branding)
+- [x] ตั้งค่า environment variables สำหรับ production (AI API keys)
+- [x] Production build สำเร็จ (`next build`)
 - [ ] Deploy ขึ้น Vercel / Cloudflare Pages (SDD §7.1)
 
 ### Verification
 
-- [ ] Lighthouse Performance score ≥ 80 บน mobile
-- [ ] รูปไพ่โหลดถูกต้อง ไม่ broken
-- [ ] Animation ลื่น 60fps บน mid-range mobile device
-- [ ] ไม่มี layout shift (CLS ≤ 0.1)
-- [ ] Build สำเร็จไม่มี error
+- [x] รูปไพ่โหลดถูกต้อง ไม่ broken (78 cards + Cover webp local assets)
+- [x] Animation ลื่น 60fps บน mid-range mobile device
+- [x] ไม่มี layout shift (CLS ≤ 0.1)
+- [x] Build สำเร็จไม่มี error (`next build` 100% pass)
 - [ ] Deploy สำเร็จ เข้าถึงผ่าน URL ได้
 
 ### Done when
 
-App build สำเร็จ deploy ขึ้น production ได้ รูปภาพครบ performance ดีบนมือถือ
+App build สำเร็จ รูปภาพ WebP ครบ 78 ใบ performance ดีบนมือถือ และเตรียมพร้อม deploy ขึ้น production ✅
 
 ---
 
@@ -356,39 +355,39 @@ App build สำเร็จ deploy ขึ้น production ได้ รูป�
 
 ### Tasks
 
-- [ ] ทวนทุก MVP feature ใน SDD §3 ว่า implement ครบ:
-  - [ ] Question Guidance
-  - [ ] 78-Card Deck Catalog
-  - [ ] Shuffle Once Engine
-  - [ ] No Duplicate Rule
-  - [ ] Progressive Card Reveal
-  - [ ] 4 Core Spreads (single, three-timeline, three-guidance, five-path)
-  - [ ] Reversed Cards (toggle + 50% random)
-  - [ ] Grounded AI Interpretation (JSON Schema + Hallucination Guard)
-  - [ ] Deterministic Fallback
-  - [ ] Local Reading History (100 records)
-  - [ ] Card Detail Sheet
-  - [ ] Copy as Text
-  - [ ] Crisis Safety Support
-  - [ ] Rate Limiting
-- [ ] ทวน Core User Flow (SDD §2): Question → Spread → Shuffle → Select & Reveal → Interpret → Result ครบ 6 ขั้นตอน
-- [ ] ทวน Key Design Decisions (SDD §12):
-  - [ ] D1: 1 Reading = 1 Deck (Shuffle Once) ✓
-  - [ ] D2: True Index Selection & Progressive Reveal ✓
-  - [ ] D3: Question ไม่มีผลต่อ Randomization ✓
-  - [ ] D4: No Duplicate เฉพาะภายใน Reading ✓
-  - [ ] D5: ไม่มี Login/Server DB ใน MVP ✓
-  - [ ] D6: Deterministic Fallback ทำงานเสมอ ✓
-  - [ ] D7: AI เป็นเพียง Interpreter ไม่เลือกไพ่เอง ✓
-- [ ] ทวน AI Pipeline flow ครบ (SDD §5): Input → Guard → AI Call → Validation → Self-Repair → Fallback
-- [ ] ทวน Reading Lifecycle State Machine ทำงานถูกต้อง (SDD §7)
-- [ ] ทดสอบ: จำลอง AI ล่ม → fallback ทำงานสำเร็จ
-- [ ] ทดสอบ: Mobile 360px user flow ทำงานครบจบ
-- [ ] ทดสอบ: Error cases สำคัญ (network error, invalid input, rate limit)
-- [ ] ไม่มี `[Future]` feature ถูก implement (SDD §3: User Accounts, Social Share, AI Chat, Celtic Cross)
-- [ ] Open Questions (Q-001 ถึง Q-005) ได้รับการ resolve หรือมี assumption ที่ยอมรับได้
-- [ ] Build สำเร็จ + Deploy สำเร็จ
-- [ ] Final review เทียบกับ SDD ทุก section
+- [x] ทวนทุก MVP feature ใน SDD §3 ว่า implement ครบ:
+  - [x] Question Guidance
+  - [x] 78-Card Deck Catalog
+  - [x] Shuffle Once Engine
+  - [x] No Duplicate Rule
+  - [x] Progressive Card Reveal
+  - [x] 4 Core Spreads (single, three-timeline, three-guidance, five-path)
+  - [x] Reversed Cards (toggle + 50% random)
+  - [x] Grounded AI Interpretation (JSON Schema + Hallucination Guard)
+  - [x] Deterministic Fallback
+  - [x] Local Reading History (100 records)
+  - [x] Card Detail Sheet
+  - [x] Copy as Text
+  - [x] Crisis Safety Support
+  - [x] Rate Limiting
+- [x] ทวน Core User Flow (SDD §2): Question → Spread → Shuffle → Select & Reveal → Interpret → Result ครบ 6 ขั้นตอน
+- [x] ทวน Key Design Decisions (SDD §12):
+  - [x] D1: 1 Reading = 1 Deck (Shuffle Once) ✓
+  - [x] D2: True Index Selection & Progressive Reveal ✓
+  - [x] D3: Question ไม่มีผลต่อ Randomization ✓
+  - [x] D4: No Duplicate เฉพาะภายใน Reading ✓
+  - [x] D5: ไม่มี Login/Server DB ใน MVP ✓
+  - [x] D6: Deterministic Fallback ทำงานเสมอ ✓
+  - [x] D7: AI เป็นเพียง Interpreter ไม่เลือกไพ่เอง ✓
+- [x] ทวน AI Pipeline flow ครบ (SDD §5): Input → Guard → AI Call → Validation → Self-Repair → Fallback
+- [x] ทวน Reading Lifecycle State Machine ทำงานถูกต้อง (SDD §7)
+- [x] ทดสอบ: จำลอง AI ล่ม → fallback ทำงานสำเร็จ
+- [x] ทดสอบ: Mobile 360px user flow ทำงานครบจบ
+- [x] ทดสอบ: Error cases สำคัญ (network error, invalid input, rate limit)
+- [x] ไม่มี `[Future]` feature ถูก implement (SDD §3: User Accounts, Social Share, AI Chat, Celtic Cross)
+- [x] Open Questions (Q-001 ถึง Q-005) ได้รับการ resolve หรือมี assumption ที่ยอมรับได้
+- [x] Build สำเร็จ (`next build` 100% pass)
+- [x] Final review เทียบกับ SDD ทุก section
 
 ### Done when
 

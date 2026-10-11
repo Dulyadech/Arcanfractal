@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import * as Dialog from "@radix-ui/react-dialog";
-import { X, Sparkles, Flame, Droplets, Wind, Mountain, Compass, RotateCcw } from "lucide-react";
+import { X, Sparkles, Flame, Droplets, Wind, Mountain, Compass, RotateCcw, Languages } from "lucide-react";
 import type { TarotCard, CardOrientation } from "@/types/tarot";
 import { getCardImageUrl } from "@/lib/tarot/card-images";
+import { getThaiCardDetail } from "@/data/cards/thai-meanings";
 
 interface CardDetailModalProps {
   card: TarotCard | null;
@@ -21,9 +23,43 @@ export function CardDetailModal({
   isOpen,
   onClose,
 }: CardDetailModalProps) {
+  const [loreLang, setLoreLang] = useState<"en" | "th">("th");
+
   if (!card) return null;
 
   const imageUrl = getCardImageUrl(card.id);
+  const thaiData = getThaiCardDetail(card.id);
+
+  const isTh = loreLang === "th" && !!thaiData;
+
+  const displayName = isTh ? thaiData.name : card.name;
+  const displayArcana = isTh ? thaiData.arcana : `${card.arcana} Arcana`;
+  const displayElement = isTh ? thaiData.element : card.element;
+  const displaySuit = isTh && thaiData.suit ? thaiData.suit : card.suit;
+
+  const displayKeywords = isTh
+    ? orientation === "reversed"
+      ? thaiData.keywords.reversed
+      : thaiData.keywords.upright
+    : orientation === "reversed"
+      ? card.keywords.reversed
+      : card.keywords.upright;
+
+  const displayShort = isTh
+    ? orientation === "reversed"
+      ? thaiData.meaning.short.reversed
+      : thaiData.meaning.short.upright
+    : orientation === "reversed"
+      ? card.meaning.short.reversed
+      : card.meaning.short.upright;
+
+  const displayFull = isTh
+    ? orientation === "reversed"
+      ? thaiData.meaning.full.reversed
+      : thaiData.meaning.full.upright
+    : orientation === "reversed"
+      ? card.meaning.full.reversed
+      : card.meaning.full.upright;
 
   const renderElementIcon = () => {
     switch (card.element) {
@@ -51,9 +87,9 @@ export function CardDetailModal({
           {/* Header Bar */}
           <div className="flex items-center justify-between border-b border-white/[0.08] px-5 py-3.5 sm:px-6">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-emerald-400" />
+              <Sparkles className="h-4 w-4 text-emerald-400 shrink-0" />
               <Dialog.Title className="font-heading font-serif text-base font-semibold text-zinc-100 sm:text-lg">
-                {card.name}
+                {displayName}
               </Dialog.Title>
               {positionName && (
                 <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-300">
@@ -62,15 +98,46 @@ export function CardDetailModal({
               )}
             </div>
 
-            <Dialog.Close asChild>
-              <button
-                type="button"
-                className="flex h-8 w-8 items-center justify-center rounded-full text-zinc-400 transition-colors hover:bg-white/10 hover:text-white"
-                aria-label="Close card details"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </Dialog.Close>
+            <div className="flex items-center gap-2.5">
+              {/* Language Toggle Button */}
+              <div className="flex items-center rounded-full border border-white/10 bg-white/[0.05] p-0.5 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setLoreLang("th")}
+                  className={`flex items-center gap-1 rounded-full px-2.5 py-1 font-medium transition-all ${
+                    loreLang === "th"
+                      ? "bg-emerald-500/20 text-emerald-300 shadow-sm"
+                      : "text-zinc-400 hover:text-zinc-200"
+                  }`}
+                  aria-label="Switch card meaning to Thai"
+                >
+                  <Languages className="h-3 w-3" />
+                  <span>ไทย</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLoreLang("en")}
+                  className={`rounded-full px-2.5 py-1 font-medium transition-all ${
+                    loreLang === "en"
+                      ? "bg-emerald-500/20 text-emerald-300 shadow-sm"
+                      : "text-zinc-400 hover:text-zinc-200"
+                  }`}
+                  aria-label="Switch card meaning to English"
+                >
+                  EN
+                </button>
+              </div>
+
+              <Dialog.Close asChild>
+                <button
+                  type="button"
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-zinc-400 transition-colors hover:bg-white/10 hover:text-white"
+                  aria-label="Close card details"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </Dialog.Close>
+            </div>
           </div>
 
           {/* Scrollable Body */}
@@ -89,7 +156,6 @@ export function CardDetailModal({
                     fill
                     sizes="(max-width: 768px) 192px, 224px"
                     className="object-cover"
-                    unoptimized
                   />
                 </div>
 
@@ -98,12 +164,12 @@ export function CardDetailModal({
                   {orientation === "reversed" ? (
                     <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/15 px-2.5 py-0.5 text-xs font-medium text-amber-300">
                       <RotateCcw className="h-3 w-3" />
-                      <span>Reversed Aspect</span>
+                      <span>{isTh ? "ตำแหน่งกลับหัว (Reversed)" : "Reversed Aspect"}</span>
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-300">
                       <Sparkles className="h-3 w-3" />
-                      <span>Upright Aspect</span>
+                      <span>{isTh ? "ตำแหน่งตั้งตรง (Upright)" : "Upright Aspect"}</span>
                     </span>
                   )}
                 </div>
@@ -114,32 +180,29 @@ export function CardDetailModal({
                 {/* Badges Strip */}
                 <div className="flex flex-wrap items-center gap-2 text-xs">
                   <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-zinc-300 capitalize">
-                    {card.arcana} Arcana
+                    {displayArcana}
                   </span>
-                  {card.suit && (
+                  {displaySuit && (
                     <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-zinc-300 capitalize">
-                      {card.suit}
+                      {displaySuit}
                     </span>
                   )}
                   <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-zinc-300 capitalize">
                     {renderElementIcon()}
-                    <span>{card.element}</span>
+                    <span>{displayElement}</span>
                   </span>
                 </div>
 
                 {/* Keywords */}
-                <div className="rounded-xl border border-white/[0.06] bg-black/20 p-3">
-                  <div className="text-[11px] font-semibold tracking-wider text-emerald-300 uppercase">
-                    Keywords
+                <div className="rounded-xl border border-white/[0.08] bg-black/25 p-3.5">
+                  <div className="text-xs font-semibold tracking-wider text-emerald-300 uppercase">
+                    {isTh ? "คำสำคัญ (Keywords)" : "Keywords"}
                   </div>
-                  <div className="mt-1.5 flex flex-wrap gap-1.5">
-                    {(orientation === "reversed"
-                      ? card.keywords.reversed
-                      : card.keywords.upright
-                    ).map((kw) => (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {displayKeywords.map((kw) => (
                       <span
                         key={kw}
-                        className="rounded-md border border-white/10 bg-white/[0.03] px-2 py-0.5 text-xs text-zinc-200"
+                        className="rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1 text-xs sm:text-sm text-zinc-100 font-medium"
                       >
                         {kw}
                       </span>
@@ -149,27 +212,21 @@ export function CardDetailModal({
 
                 {/* Short Essence */}
                 <div>
-                  <h4 className="font-heading font-serif text-xs font-semibold tracking-wide text-zinc-400 uppercase">
-                    Core Essence
+                  <h4 className="font-heading font-serif text-xs sm:text-sm font-semibold tracking-wide text-zinc-300 uppercase">
+                    {isTh ? "แก่นความหมายหลัก (Core Essence)" : "Core Essence"}
                   </h4>
-                  <p className="mt-1 font-serif text-sm leading-relaxed text-zinc-200 italic">
-                    &ldquo;
-                    {orientation === "reversed"
-                      ? card.meaning.short.reversed
-                      : card.meaning.short.upright}
-                    &rdquo;
+                  <p className="mt-1.5 font-serif text-base sm:text-lg leading-relaxed text-zinc-100 italic">
+                    &ldquo;{displayShort}&rdquo;
                   </p>
                 </div>
 
                 {/* Full Narrative Lore */}
-                <div className="border-t border-white/[0.06] pt-3">
-                  <h4 className="font-heading font-serif text-xs font-semibold tracking-wide text-zinc-400 uppercase">
-                    Full Interpretation Lore
+                <div className="border-t border-white/[0.08] pt-3.5">
+                  <h4 className="font-heading font-serif text-xs sm:text-sm font-semibold tracking-wide text-zinc-300 uppercase">
+                    {isTh ? "คำอธิบายความหมายโดยละเอียด (Full Interpretation)" : "Full Interpretation Lore"}
                   </h4>
-                  <p className="mt-1.5 text-xs leading-relaxed text-zinc-300 sm:text-sm">
-                    {orientation === "reversed"
-                      ? card.meaning.full.reversed
-                      : card.meaning.full.upright}
+                  <p className="mt-2 text-sm sm:text-base leading-relaxed text-zinc-200">
+                    {displayFull}
                   </p>
                 </div>
               </div>

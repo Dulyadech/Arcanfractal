@@ -112,21 +112,24 @@ export const CARD_IMAGE_FILENAME_MAP: Record<string, string> = {
   "pentacles-14": "Pents14.png",
 };
 
+const LOCAL_CARDS_BASE = "/cards";
+
 /**
- * Returns the full CDN URL for a Tarot card's Rider-Waite image.
+ * Returns the local static URL for a Tarot card's optimized WebP image (SDD §7.1).
  */
 export function getCardImageUrl(cardId: string): string {
   const filename = CARD_IMAGE_FILENAME_MAP[cardId];
   if (!filename) {
     // Fallback to Cover if unknown
-    return `${RAW_GITHUB_BASE}/Cover.png`;
+    return `${LOCAL_CARDS_BASE}/Cover.webp`;
   }
-  return `${RAW_GITHUB_BASE}/${filename}`;
+  const baseName = filename.replace(/\.png$/i, "");
+  return `${LOCAL_CARDS_BASE}/${baseName}.webp`;
 }
 
 /**
  * Returns the card back image URL.
  */
 export function getCardBackImageUrl(): string {
-  return `${RAW_GITHUB_BASE}/Cover.png`;
+  return `${LOCAL_CARDS_BASE}/Cover.webp`;
 }

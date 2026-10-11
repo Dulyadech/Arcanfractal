@@ -130,13 +130,13 @@ export function QuestionForm() {
       {/* Cinematic Floating Capsule Card */}
       <form
         onSubmit={handleSubmit}
-        className="relative w-full rounded-[26px] border border-white/[0.12] bg-[#14181d]/85 p-3.5 shadow-[0_20px_50px_rgba(0,0,0,0.65)] backdrop-blur-2xl transition-all focus-within:border-emerald-500/50 focus-within:shadow-[0_20px_60px_rgba(16,185,129,0.15)] sm:rounded-[32px] sm:p-5"
+        className="relative w-full rounded-2xl border border-white/[0.12] bg-[#14181d]/85 p-3 shadow-[0_15px_40px_rgba(0,0,0,0.6)] backdrop-blur-2xl transition-all focus-within:border-emerald-500/50 focus-within:shadow-[0_15px_45px_rgba(16,185,129,0.15)] sm:rounded-3xl sm:p-4"
       >
         {/* Top Textarea Area */}
-        <div className="relative min-h-[90px] sm:min-h-[110px]">
+        <div className="relative min-h-[56px] sm:min-h-[68px]">
           <textarea
             id="tarot-question"
-            rows={3}
+            rows={2}
             value={question}
             onChange={handleTextChange}
             onKeyDown={(e) => {
@@ -146,12 +146,12 @@ export function QuestionForm() {
               }
             }}
             placeholder={t.landing.inputPlaceholder}
-            className="w-full resize-none bg-transparent p-1.5 text-sm leading-relaxed text-zinc-100 placeholder:text-zinc-500 focus:outline-none sm:p-2 sm:text-base"
+            className="w-full resize-none bg-transparent p-1 text-sm leading-normal text-zinc-100 placeholder:text-zinc-500 focus:outline-none sm:p-1.5 sm:text-base"
           />
         </div>
 
         {/* Validation and Character Counter Sub-bar */}
-        <div className="mb-3 flex items-center justify-between px-2 text-[11px]">
+        <div className="mb-2 flex items-center justify-between px-1 text-[11px]">
           <div className="flex items-center gap-1.5">
             {isTooShort && (
               <span className="flex items-center gap-1 text-rose-400">
@@ -191,14 +191,14 @@ export function QuestionForm() {
         </div>
 
         {/* Bottom Action Bar inside Capsule */}
-        <div className="flex flex-wrap items-center justify-between gap-2.5 border-t border-white/[0.08] pt-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/[0.08] pt-2 sm:pt-2.5">
           {/* Left: Interactive Category Chips */}
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             {/* Quick Inspiration Button */}
             <button
               type="button"
               onClick={() => setShowPromptsDropdown((prev) => !prev)}
-              className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+              className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-all ${
                 showPromptsDropdown
                   ? "border border-emerald-500/40 bg-emerald-500/20 text-emerald-300"
                   : "border border-white/[0.08] bg-white/[0.05] text-zinc-300 hover:bg-white/[0.1] hover:text-white"
@@ -217,7 +217,7 @@ export function QuestionForm() {
                   setActiveCategory(cat.id);
                   setShowPromptsDropdown(true);
                 }}
-                className={`hidden rounded-full px-3 py-1.5 text-xs font-medium transition-all md:inline-flex ${
+                className={`hidden rounded-full px-2.5 py-1 text-xs font-medium transition-all md:inline-flex ${
                   activeCategory === cat.id && showPromptsDropdown
                     ? "border border-emerald-500/30 bg-emerald-500/20 text-emerald-300"
                     : "border border-white/[0.06] bg-white/[0.04] text-zinc-400 hover:bg-white/[0.08] hover:text-zinc-200"
@@ -231,7 +231,7 @@ export function QuestionForm() {
             <button
               type="button"
               onClick={() => setShowGuidance((prev) => !prev)}
-              className={`flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-medium transition-all ${
+              className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-all ${
                 showGuidance
                   ? "border border-teal-500/40 bg-teal-500/20 text-teal-300"
                   : "border border-white/[0.06] bg-white/[0.04] text-zinc-400 hover:bg-white/[0.08] hover:text-zinc-200"
@@ -246,7 +246,7 @@ export function QuestionForm() {
             <button
               type="button"
               onClick={handleRandomPrompt}
-              className="flex items-center gap-1 rounded-full border border-white/[0.06] bg-white/[0.04] px-2.5 py-1.5 text-xs font-medium text-zinc-400 transition-all hover:bg-white/[0.08] hover:text-zinc-200"
+              className="flex items-center gap-1 rounded-full border border-white/[0.06] bg-white/[0.04] px-2 py-1 text-xs font-medium text-zinc-400 transition-all hover:bg-white/[0.08] hover:text-zinc-200"
               title={t.landing.random}
             >
               <Dices className="h-3.5 w-3.5 text-zinc-400" />
@@ -257,7 +257,7 @@ export function QuestionForm() {
               <button
                 type="button"
                 onClick={handleClear}
-                className="flex items-center gap-1 rounded-full px-2 py-1.5 text-xs text-zinc-500 hover:text-zinc-300"
+                className="flex items-center gap-1 rounded-full px-2 py-1 text-xs text-zinc-500 hover:text-zinc-300"
                 title={t.landing.clear}
               >
                 <RotateCcw className="h-3 w-3" />
@@ -271,13 +271,13 @@ export function QuestionForm() {
               type="submit"
               disabled={!validation.isValid || isPending}
               aria-label={t.landing.continueBtn}
-              className={`flex h-10 w-10 items-center justify-center rounded-full transition-all sm:h-11 sm:w-11 ${
+              className={`flex h-9 w-9 items-center justify-center rounded-full transition-all sm:h-10 sm:w-10 ${
                 validation.isValid && !isPending
                   ? "cursor-pointer bg-[#22c55e] text-black shadow-[0_0_20px_rgba(34,197,94,0.45)] hover:scale-105 hover:bg-[#16a34a] active:scale-95"
                   : "cursor-not-allowed border border-white/[0.05] bg-white/[0.06] text-zinc-600"
               }`}
             >
-              <ArrowUp className="h-4 w-4 stroke-[2.5] sm:h-5 sm:w-5" />
+              <ArrowUp className="h-4 w-4 stroke-[2.5]" />
             </button>
           </div>
         </div>
