@@ -47,6 +47,24 @@
 - Note: ต้องแปลงเป็น WebP/AVIF 30-40 KB ตาม SDD §7.1 ในขั้น Phase 7
 - Status: Resolved
 
+### ~~Q-006 — กลไกการสุ่มและรีเซ็ตไพ่รายวัน (Daily Card Reset & Determinism)~~ ✅ Resolved
+
+- Type: DECISION
+- Related: `note.md` §1 Daily Card
+- **Decision: Option A — Random draw ครั้งแรกของวันผ่าน Web Crypto API แล้วบันทึกลง LocalStorage (พร้อม timestamp และ lock ไว้จนถึง midnight ถัดไปของ local time)**
+- Status: Resolved (Phase 9 Implementation)
+
+### Q-007 — Endpoint และ Rate Limiting สำหรับ Follow-up Inquiries
+
+- Type: DECISION / ARCHITECTURE
+- Related: `note.md` §2 Interactive Follow-up Inquiries, SDD §3 "AI Follow-up Chat", SDD §8 & §9
+- Problem: ฟังก์ชันถามต่อขยายจาก `/api/interpret` เดิม หรือสร้าง endpoint แยก เช่น `POST /api/interpret/follow-up`? และจำกัดจำนวนคำถามต่อ reading ไว้กี่คำถาม (Turn limit / Rate limit) เพื่อป้องกันการใช้งาน token เกินงบประมาณ?
+- Options:
+  - Option A: สร้าง endpoint แยก `POST /api/interpret/follow-up` พร้อมจำกัดจำนวนครั้ง (เช่น สูงสุด 3 คำถามต่อ reading)
+  - Option B: ปรับ `POST /api/interpret` ให้รับ conversation history / previous synthesis
+- Required decision: กำหนด endpoint schema, turn limit, และ model parameters
+- Blocking: No (Phase 10 — Follow-up Inquiries)
+
 ---
 
 ## Assumptions
@@ -395,6 +413,97 @@ App build สำเร็จ รูปภาพ WebP ครบ 78 ใบ perform
 
 ---
 
+## Phase 9 — Daily Card Ritual (Post-MVP Feature)
+
+**Goal:** เพิ่มฟีเจอร์การจั่วไพ่รายวัน (One-Card Reading of the Day) เพื่อสร้าง Daily Routine Reflection และส่งเสริม Daily Engagement (`note.md` §1)
+
+### Tasks
+
+- [x] กำหนด Data Model สำหรับ Daily Card:
+  - สร้าง interface/type `DailyCardRecord`: `{ date: string, card: DrawnCard, affirmation: string, theme: string, advice: string, locale: "th" | "en", drawnAt: string }`
+  - สร้าง interface/type `DailyStreakState`: `{ currentStreak: number, maxStreak: number, lastDrawnDate: string, history: DailyCardRecord[] }`
+- [x] ออกแบบและ Implement Storage & Reset Logic (Client-Side Storage):
+  - บันทึกไพ่รายวันที่จั่วแล้วลงใน LocalStorage (key: เช่น `daily_card_record`, `daily_streak`)
+  - ตรวจสอบเงื่อนไขการ reset อัตโนมัติเมื่อพ้นเที่ยงคืน (Local midnight reset)
+  - ป้องกันการจั่วซ้ำในวันเดิม (Revisit view mode เมื่อเคยวาดแล้วในวันนั้น)
+- [x] พัฒนา Micro-Interpretation Logic:
+  - สร้างคำแปลแบบกระชับ (Affirmation, Theme of the Day, Mindset Advice)
+  - รองรับ Fallback Micro-Interpretation จาก Deck Catalog โดยตรง
+  - ออกแบบ Prompt สำหรับ Micro-Interpretation หากดึงจาก AI Engine หรือคำนวณแบบ Deterministic
+  - รองรับปุ่มสลับภาษาคำแปลด่วน (Quick toggle Thai/English)
+- [x] พัฒนา UI/UX สำหรับ Daily Card:
+  - สร้าง Quick-access widget / Banner บนหน้าแรก (`/`)
+  - สร้าง Dedicated View หรือ Modal สำหรับทำ Single-Draw Daily Ritual
+  - ปรับปรุง Card Reveal Animation สำหรับการเปิดไพ่ใบเดียวให้กระชับเข้ากับ daily routine
+- [x] พัฒนาระบบ Daily Streak & History Tracking:
+  - คำนวณวันต่อเนื่อง (Consecutive days streak calculation) พร้อมจัดการกรณีขาดช่วง (Streak break)
+  - สร้างหน้า/ส่วนแสดงผล Past Daily Cards ในมุมมอง Calendar-style หรือ Chronological list view
+- [x] เขียน Unit & Integration Tests:
+  - ตรวจสอบ Midnight reset logic และ timezone edge cases
+  - ตรวจสอบ Streak calculation (วันต่อเนื่อง, ข้ามวัน, วันเดียวกันซ้ำ)
+  - ตรวจสอบการป้องกันการจั่วซ้ำในวันเดียวกัน
+
+### Verification
+
+- [x] เข้าหน้า Daily Card สามารถจั่วไพ่ได้ 1 ใบ พร้อมแสดง Micro-Interpretation
+- [x] สลับภาษาคำแปล Thai/English ได้ถูกต้อง
+- [x] Refresh หรือกลับมาเปิดใหม่ในวันเดียวกัน จะแสดงไพ่เดิมที่เคยจั่ว ไม่สามารถจั่วซ้ำได้
+- [x] ข้ามวัน (พ้นเที่ยงคืน) ระบบปลดล็อกให้จั่วไพ่ใบใหม่ของวันถัดไปได้
+- [x] Streak นับเพิ่มขึ้นอย่างถูกต้องเมื่อจั่วติดต่อกัน
+- [x] ดูประวัติการจั่วไพ่รายวันย้อนหลังได้
+
+### Done when
+
+ผู้ใช้สามารถเข้ามาร่วม Daily Ritual จั่วไพ่ 1 ใบประจำวัน ได้รับคำแนะนำกระชับ สลับภาษาได้ ไม่จั่วซ้ำในวันเดิม และติดตาม Streak รวมถึงประวัติย้อนหลังได้อย่างสมบูรณ์ ✅ (Phase 9 Complete)
+
+---
+
+## Phase 10 — Interactive Follow-up Inquiries (Post-MVP Feature)
+
+**Goal:** เพิ่มความสามารถในการถามคำถามเจาะลึกต่อเนื่อง (Follow-up Questions) ภายใต้บริบทของ Reading เดิมโดยไม่ต้องสับไพ่ใหม่ (`note.md` §2, ขยายผลจาก `[Future] AI Follow-up Chat` ใน SDD §3)
+
+### Tasks
+
+- [ ] ออกแบบ API Contract และ Endpoint สำหรับ Follow-up:
+  - ตัดสินใจสถาปัตยกรรม (ตาม Q-007): สร้าง endpoint เช่น `POST /api/interpret/follow-up`
+  - กำหนด Payload Schema: `{ drawId, originalQuestion, spreadId, cards, analysis, initialSynthesis, followUpQuestion, threadHistory: Array<{ question: string, answer: string }>, locale }`
+  - Output Schema: `{ answer: string, referencedCards: string[], safety: "none" | "sensitive" | "crisis" }`
+  - กำหนด Rate Limiting / Turn Limit ต่อ 1 Reading Session (เช่น สูงสุด 3-5 คำถาม) เพื่อคุมต้นทุนและป้องกันการวนลูป
+- [ ] พัฒนา Grounded Context-Preserving AI Prompting:
+  - ผูก Original inquiry, Spread, Drawn cards, และ Previous synthesis เข้ากับ Prompt
+  - กำหนด Strict Grounding Constraints: ห้ามสร้างไพ่ใหม่ (No Hallucination), ให้อ้างอิงเฉพาะไพ่ที่มีอยู่ใน Reading ปัจจุบัน
+  - Enforce Safety & Crisis Guard เช่นเดียวกับคำถามแรก
+  - เตรียม Deterministic Fallback ตอบคำถามเบื้องต้นกรณี AI มีปัญหา
+- [ ] พัฒนา Multi-Turn Thread UI บนหน้า Reading Result (`/read?step=result`):
+  - วาง Input Box ที่ด้านล่างของหน้า Result
+  - ทำ Guidance / Example follow-up questions เพื่อแนะนำผู้ใช้
+  - แสดงผลประวัติการสนทนา (Q&A thread) เรียงต่อกันอย่างชัดเจนใต้บทวิเคราะห์หลัก
+  - แสดง Loading / Typing state ระหว่างรอ AI ตอบ
+- [ ] ปรับปรุงการบันทึกประวัติ (Local Reading History):
+  - ขยาย `ReadingRecord` type ให้รองรับ `followUpThread?: Array<{ id: string, question: string, answer: string, timestamp: string }>`
+  - บันทึกบทสนทนา follow-up อัปเดตลง LocalStorage ร่วมกับ reading record เดิมทันทีที่มีการถาม-ตอบ
+  - ตรวจสอบให้หน้า `/history` สามารถเปิดอ่านบทสนทนาถาม-ตอบย้อนหลังได้ครบถ้วน
+- [ ] เขียน Unit & Integration Tests:
+  - ทดสอบ Context preservation ใน AI prompt payload
+  - ทดสอบ Zero-hallucination validation สำหรับ follow-up
+  - ทดสอบ UI state การเพิ่ม turn คำถาม-คำตอบ และการ persist ลง local storage
+  - ทดสอบ Session turn limit / rate limit enforcement
+
+### Verification
+
+- [ ] หน้า Result มีช่องกรอกคำถามเพิ่มเติมด้านล่าง
+- [ ] ถามคำถามเพิ่มเติมแล้วได้คำตอบที่อ้างอิงไพ่ในสำรับที่เปิดไว้ ไม่กล่าวถึงไพ่นอกสำรับ
+- [ ] Q&A แสดงผลเป็น Thread ใต้บทวิเคราะห์อย่างสวยงามและอ่านง่าย
+- [ ] ข้อมูล Follow-up ถูกบันทึกลงใน Local Reading History เมื่อเปิดดูใน `/history` จะพบบทสนทนาครบถ้วน
+- [ ] ระบบตรวจจับ Crisis keywords ในคำถาม follow-up ได้และแสดง Crisis support อย่างถูกต้อง
+- [ ] ไม่สามารถยิงคำถามเกินโควตาต่อ Session ที่กำหนดได้
+
+### Done when
+
+ผู้ใช้สามารถพิมพ์ถามคำถามเจาะลึกต่อจากผลการทำนายเดิมได้ โดย AI ตอบตรงบริบทไพ่ที่มีอยู่ บันทึกเป็น thread ลงในประวัติ และมีระบบ safety ครบถ้วน
+
+---
+
 ## Phase Dependency Map
 
 ```text
@@ -415,4 +524,18 @@ Phase 6 (History + Crisis + Edge Cases)
 Phase 7 (Polish + Build + Deploy) ←── ขึ้นกับ Q-005 (รูปไพ่)
   ↓
 Phase 8 (Final Verification)
+  ↓
+═════════════════════════════════════════════════════
+  Post-MVP Feature Roadmap (จาก note.md)
+═════════════════════════════════════════════════════
+  ↓
+Phase 9 (Daily Card Ritual)
+  ├── ต่อยอดจาก Tarot Engine (Phase 1)
+  ├── ใช้องค์ประกอบ UI/Animations (Phase 4, Phase 5)
+  └── จัดเก็บข้อมูลบน LocalStorage (แบบเดียวกับ Phase 6)
+  ↓
+Phase 10 (Interactive Follow-up Inquiries)
+  ├── ต่อยอดจาก Server API & AI Integration (Phase 2, Phase 3)
+  ├── ต่อยอดหน้า Reading Result (Phase 5)
+  └── อัปเดต ReadingRecord & History Viewer (Phase 6)
 ```

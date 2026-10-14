@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Cinzel, Playfair_Display, Plus_Jakarta_Sans, Inter, Sarabun } from "next/font/google";
+import { Cinzel, Plus_Jakarta_Sans, Sarabun } from "next/font/google";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CaveMoonlightBackground } from "@/components/layout/CaveMoonlightBackground";
@@ -12,27 +12,15 @@ const cinzel = Cinzel({
   display: "swap",
 });
 
-const playfairDisplay = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
-  display: "swap",
-});
-
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta-sans",
   subsets: ["latin"],
   display: "swap",
 });
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
-
 const sarabun = Sarabun({
   variable: "--font-sarabun",
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600"],
   subsets: ["thai", "latin"],
   display: "swap",
 });
@@ -86,7 +74,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${cinzel.variable} ${playfairDisplay.variable} ${plusJakartaSans.variable} ${inter.variable} ${sarabun.variable} dark h-full antialiased`}
+      className={`${cinzel.variable} ${plusJakartaSans.variable} ${sarabun.variable} dark h-full antialiased`}
     >
       <body className="font-body relative flex min-h-screen flex-col overflow-x-hidden bg-[#070b0e] text-zinc-100 selection:bg-emerald-500 selection:text-black">
         <LanguageProvider>

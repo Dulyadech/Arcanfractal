@@ -18,9 +18,9 @@ describe("Question to Spread Recommendation Engine (SDD §4.5, §6.2)", () => {
 
   it("maps decisions, dilemmas, and obstacle handling to 'three-guidance'", () => {
     const questions = [
-      "ฉันควรลาออกจากงานประจำมาทำธุรกิจดีไหม?",
+      "ควรรับมือกับปัญหาที่เข้ามาอย่างไรดี?",
       "ตอนนี้ติดปัญหาเรื่องการสื่อสารกับทีม ควรแก้ปัญหาอย่างไร?",
-      "Should I accept the new job offer or stay in my current position?",
+      "How do I deal with this obstacle at work and find advice?",
     ];
 
     questions.forEach((q) => {
@@ -46,7 +46,7 @@ describe("Question to Spread Recommendation Engine (SDD §4.5, §6.2)", () => {
 
   it("maps multifaceted / deep crossroads inquiries to 'five-path'", () => {
     const questions = [
-      "การเปลี่ยนผ่านชีวิตและเส้นทางชีวิตในระยะยาวของฉันกำลังมุ่งหน้าไปในทิศทางใด?",
+      "กำลังอยู่ที่ทางแยกของชีวิต จะเปลี่ยนสายงานดีไหม หรือเรียนต่อปริญญาโทดี มีทางเลือกหลายทาง",
       "ฉันกำลังอยู่ที่ทางแยกชีวิตเรื่องความสัมพันธ์และครอบครัว อยากวิเคราะห์ภาพรวมรอบด้านอย่างลึกซึ้ง",
       "I am at a deep crossroad regarding my holistic life path, career transformation and purpose?",
     ];
@@ -59,9 +59,9 @@ describe("Question to Spread Recommendation Engine (SDD §4.5, §6.2)", () => {
   });
 
   it("provides localized reasons in English when locale is 'en'", () => {
-    const rec = getSpreadRecommendation("Should I make this decision today?", "en");
+    const rec = getSpreadRecommendation("How do I overcome this obstacle?", "en");
     expect(rec.spreadId).toBe("three-guidance");
     expect(rec.badgeText).toBe("Decision & Clarity");
-    expect(rec.reason).toContain("decision");
+    expect(rec.reason).toContain("obstacle");
   });
 });

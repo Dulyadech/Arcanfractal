@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, useRef, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowUp, Sparkles, HelpCircle, Dices, RotateCcw, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -14,45 +14,54 @@ import {
   saveQuestion,
   clearReadingSession,
 } from "@/lib/storage/reading-session";
+import dynamic from "next/dynamic";
 import { EXAMPLE_PROMPTS } from "@/data/prompts";
-import { QuestionGuidance } from "./QuestionGuidance";
 import { useLanguage } from "@/lib/i18n/context";
 import { getSpreadRecommendation } from "@/lib/tarot/spread-recommendation";
 import { detectCrisisIntent } from "@/lib/safety/crisis";
-import { CrisisPanel } from "@/components/safety/CrisisPanel";
+
+const QuestionGuidance = dynamic(
+  () => import("./QuestionGuidance").then((m) => m.QuestionGuidance),
+  { ssr: false }
+);
+const CrisisPanel = dynamic(
+  () => import("@/components/safety/CrisisPanel").then((m) => m.CrisisPanel),
+  { ssr: false }
+);
 
 export function QuestionForm() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const { t, locale } = useLanguage();
 
-  const [question, setQuestion] = useState<string>(() => {
-    if (typeof window === "undefined") return "";
-    const session = getReadingSession();
-    if (session?.question && session.lifecycleState !== "RESULT") {
-      return session.question;
-    }
-    if (session?.lifecycleState === "RESULT") {
-      clearReadingSession();
-    }
-    return "";
-  });
-
-  const [hasInteracted, setHasInteracted] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
-    const session = getReadingSession();
-    return Boolean(session?.question && session.lifecycleState !== "RESULT");
-  });
-
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [question, setQuestion] = useState<string>("");
+  const [hasInteracted, setHasInteracted] = useState<boolean>(false);
   const [activeCategory, setActiveCategory] = useState<string>("general");
   const [showPromptsDropdown, setShowPromptsDropdown] = useState(false);
   const [showGuidance, setShowGuidance] = useState(false);
+
+  // Restore session from sessionStorage on client mount to prevent SSR hydration mismatch & auto focus
+  useEffect(() => {
+    const session = getReadingSession();
+    if (session?.question && session.lifecycleState !== "RESULT") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setQuestion(session.question);
+      setHasInteracted(true);
+    } else if (session?.lifecycleState === "RESULT") {
+      clearReadingSession();
+    }
+
+    // Auto-focus input when entering homepage
+    textareaRef.current?.focus();
+  }, []);
 
   // Subscribe to session reset events from other components (e.g. New Reading)
   useEffect(() => {
     const handleSessionReset = () => {
       setQuestion("");
       setHasInteracted(false);
+      textareaRef.current?.focus();
     };
 
     window.addEventListener("tarot_session_reset", handleSessionReset);
@@ -135,6 +144,8 @@ export function QuestionForm() {
         {/* Top Textarea Area */}
         <div className="relative min-h-[56px] sm:min-h-[68px]">
           <textarea
+            ref={textareaRef}
+            autoFocus
             id="tarot-question"
             rows={2}
             value={question}
@@ -171,7 +182,9 @@ export function QuestionForm() {
                 <span>{t.landing.readyToDraw}</span>
                 <span className="hidden text-zinc-500 sm:inline">&bull;</span>
                 <span className="hidden text-emerald-300/80 sm:inline">
-                  Recommended: {getSpreadRecommendation(question, "en").spreadName}
+                  {locale === "en" ? "Match: " : "แนะนำ: "}
+                  {getSpreadRecommendation(question, locale).spreadName} (
+                  {getSpreadRecommendation(question, locale).topShare}%)
                 </span>
               </span>
             )}

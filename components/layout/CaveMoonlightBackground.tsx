@@ -1,7 +1,3 @@
-"use client";
-
-import { motion } from "framer-motion";
-
 export function CaveMoonlightBackground() {
   return (
     <div
@@ -15,18 +11,13 @@ export function CaveMoonlightBackground() {
       <div className="absolute inset-x-0 -top-10 h-[450px] bg-gradient-to-b from-[#3d276f]/25 via-[#39977f]/20 to-transparent blur-[80px]" />
 
       {/* The Moon */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1.2, ease: "easeOut" }}
-        className="absolute top-16 left-[62%] sm:top-20 sm:left-[60%]"
-      >
+      <div className="absolute top-16 left-[62%] sm:top-20 sm:left-[60%]">
         {/* Soft Moon Halo (Light Mint #B4DAC3 Glow) */}
         <div className="absolute -inset-10 rounded-full bg-[#b4dac3]/15 blur-2xl" />
         <div className="absolute -inset-20 rounded-full bg-[#39977f]/15 blur-3xl" />
         {/* The Moon Body */}
         <div className="relative h-16 w-16 rounded-full bg-gradient-to-tr from-[#b4dac3] via-[#e8f5ee] to-[#ffffff] shadow-[0_0_35px_rgba(180,218,195,0.45)] sm:h-20 sm:w-20" />
-      </motion.div>
+      </div>
 
       {/* Distant Stars */}
       <div
