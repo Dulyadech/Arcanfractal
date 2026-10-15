@@ -1,16 +1,21 @@
 import type { AIProviderHealthInfo } from "@/types/api";
 
 /**
- * Checks connectivity and configuration status for the Primary AI Provider (KKU IntelliShare).
+ * Checks connectivity and configuration status for the Primary AI Provider (KKU IntelSphere).
  */
 export async function checkKKUHealth(
   timeoutMs: number = 3000,
   skipNetwork: boolean = false
 ): Promise<AIProviderHealthInfo> {
-  const apiKey = process.env.KKU_INTELLISHARE_API_KEY;
-  const rawBaseUrl = process.env.KKU_INTELLISHARE_BASE_URL || "https://gen.ai.kku.ac.th/api/v1";
+  const apiKey =
+    process.env.KKU_INTELSPHERE_API_KEY || process.env.KKU_INTELLISHARE_API_KEY;
+  const rawBaseUrl =
+    process.env.KKU_INTELSPHERE_BASE_URL ||
+    process.env.KKU_INTELLISHARE_BASE_URL ||
+    "https://gen.ai.kku.ac.th/api/v1";
   const baseUrl = rawBaseUrl.replace(/\/+$/, "");
-  const configuredModel = process.env.KKU_INTELLISHARE_MODEL;
+  const configuredModel =
+    process.env.KKU_INTELSPHERE_MODEL || process.env.KKU_INTELLISHARE_MODEL;
   const model =
     configuredModel && configuredModel !== "gpt-4o-mini"
       ? configuredModel
@@ -18,7 +23,7 @@ export async function checkKKUHealth(
 
   if (!apiKey) {
     return {
-      name: "KKU IntelliShare",
+      name: "KKU IntelSphere",
       status: "unconfigured",
       isPrimary: true,
       model,
@@ -28,7 +33,7 @@ export async function checkKKUHealth(
 
   if (skipNetwork) {
     return {
-      name: "KKU IntelliShare",
+      name: "KKU IntelSphere",
       status: "healthy",
       isPrimary: true,
       model,
@@ -56,7 +61,7 @@ export async function checkKKUHealth(
 
     if (res.ok) {
       return {
-        name: "KKU IntelliShare",
+        name: "KKU IntelSphere",
         status: "healthy",
         isPrimary: true,
         model,
@@ -65,7 +70,7 @@ export async function checkKKUHealth(
     }
 
     return {
-      name: "KKU IntelliShare",
+      name: "KKU IntelSphere",
       status: "degraded",
       isPrimary: true,
       model,
@@ -75,7 +80,7 @@ export async function checkKKUHealth(
   } catch (error) {
     const latencyMs = Math.round(performance.now() - start);
     return {
-      name: "KKU IntelliShare",
+      name: "KKU IntelSphere",
       status: "error",
       isPrimary: true,
       model,

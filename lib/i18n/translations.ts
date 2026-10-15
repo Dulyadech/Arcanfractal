@@ -9,6 +9,7 @@ export interface Translations {
   };
   landing: {
     stepBadge: string;
+    headline: string;
     headlinePart1: string;
     headlineAccent: string;
     subtitle: string;
@@ -114,6 +115,31 @@ export interface Translations {
     aiGenerated: string;
     offlineFallback: string;
   };
+  daily: {
+    bannerBadge: string;
+    bannerTitle: string;
+    bannerSubtitle: string;
+    drawTodayBtn: string;
+    viewGuidanceBtn: string;
+    streakBadge: string;
+    pageHeadline: string;
+    pageSubtitle: string;
+    ritualPrompt: string;
+    tapToReveal: string;
+    themeLabel: string;
+    affirmationLabel: string;
+    adviceLabel: string;
+    streakTitle: string;
+    streakActive: string;
+    streakDays: string;
+    nextResetIn: string;
+    copyAffirmation: string;
+    copied: string;
+    shareBtn: string;
+    calendarTitle: string;
+    noHistory: string;
+    toggleLanguage: string;
+  };
 }
 
 export const TRANSLATIONS: Record<Locale, Translations> = {
@@ -126,6 +152,7 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
     },
     landing: {
       stepBadge: "Step 1 of 4 • Set Your Intention",
+      headline: "Where should we begin?",
       headlinePart1: "Inquire into life and destiny",
       headlineAccent: "with AI-powered Tarot",
       subtitle: "Turn life crossroads into grounded wisdom — in moments — no superstition needed",
@@ -235,6 +262,31 @@ export const TRANSLATIONS: Record<Locale, Translations> = {
       cardsCount: "cards",
       aiGenerated: "AI Synthesized",
       offlineFallback: "Classic Wisdom",
+    },
+    daily: {
+      bannerBadge: "Daily Ritual",
+      bannerTitle: "Your Card of the Day",
+      bannerSubtitle: "Draw a single card for grounded inspiration, daily alignment, and mindful focus.",
+      drawTodayBtn: "Draw Today's Card",
+      viewGuidanceBtn: "View Today's Guidance",
+      streakBadge: "Day Streak",
+      pageHeadline: "Daily Card of the Day",
+      pageSubtitle: "One card drawn in sacred stillness to illuminate today's path.",
+      ritualPrompt: "Center your breath, focus on the present, and tap the deck to reveal your daily focus.",
+      tapToReveal: "Tap to reveal your card",
+      themeLabel: "Theme of the Day",
+      affirmationLabel: "Daily Affirmation",
+      adviceLabel: "Mindset Guidance",
+      streakTitle: "Ritual Streak",
+      streakActive: "Consecutive Days",
+      streakDays: "days",
+      nextResetIn: "Next card available in",
+      copyAffirmation: "Copy Guidance",
+      copied: "Copied to Clipboard!",
+      shareBtn: "Share",
+      calendarTitle: "Past Daily Inquiries",
+      noHistory: "No past daily cards recorded yet. Return tomorrow to build your streak!",
+      toggleLanguage: "Switch Language",
     },
   },
 };

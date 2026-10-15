@@ -9,6 +9,12 @@ describe("KKU IntelliShare Provider Adapter (SDD §7, §7.1)", () => {
 
   beforeEach(() => {
     process.env = { ...originalEnv };
+    delete process.env.KKU_INTELSPHERE_API_KEY;
+    delete process.env.KKU_INTELSPHERE_BASE_URL;
+    delete process.env.KKU_INTELSPHERE_MODEL;
+    delete process.env.KKU_INTELLISHARE_API_KEY;
+    delete process.env.KKU_INTELLISHARE_BASE_URL;
+    delete process.env.KKU_INTELLISHARE_MODEL;
     vi.restoreAllMocks();
   });
 
@@ -41,11 +47,12 @@ describe("KKU IntelliShare Provider Adapter (SDD §7, §7.1)", () => {
   const analysis = calculateReadingAnalysis(sampleCards);
 
   describe("callKKUIntelliShare direct calls", () => {
-    it("throws an error when KKU_INTELLISHARE_API_KEY is missing", async () => {
+    it("throws an error when KKU API key is missing", async () => {
+      delete process.env.KKU_INTELSPHERE_API_KEY;
       delete process.env.KKU_INTELLISHARE_API_KEY;
 
       await expect(callKKUIntelliShare("system", "user")).rejects.toThrow(
-        "KKU_INTELLISHARE_API_KEY is not configured"
+        /is not configured/
       );
     });
 
@@ -134,7 +141,7 @@ describe("KKU IntelliShare Provider Adapter (SDD §7, §7.1)", () => {
       } as Response);
 
       await expect(callKKUIntelliShare("System", "User")).rejects.toThrow(
-        "KKU IntelliShare responded with status 500: Internal Server Error in KKU cluster"
+        /KKU Intel(Sphere|liShare) responded with status 500: Internal Server Error in KKU cluster/
       );
     });
   });

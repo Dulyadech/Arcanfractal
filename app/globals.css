@@ -25,21 +25,19 @@
 
   /* ==========================================================================
      Typography
-     Headings: Serif (Cinzel / Playfair Display) + Sarabun
-     Body: Sans-Serif (Plus Jakarta Sans / Inter) + Sarabun
+     Headings: Serif (Cinzel) + Sarabun
+     Body: Sans-Serif (Plus Jakarta Sans) + Sarabun
      Thai font: Sarabun
      ========================================================================== */
-  --font-heading: var(--font-cinzel), var(--font-playfair), var(--font-sarabun), Georgia, serif;
-  --font-serif: var(--font-cinzel), var(--font-playfair), var(--font-sarabun), Georgia, serif;
+  --font-heading: var(--font-cinzel), var(--font-sarabun), Georgia, serif;
+  --font-serif: var(--font-cinzel), var(--font-sarabun), Georgia, serif;
   --font-cinzel: var(--font-cinzel), Georgia, serif;
-  --font-playfair: var(--font-playfair), Georgia, serif;
 
   --font-body:
-    var(--font-plus-jakarta-sans), var(--font-inter), var(--font-sarabun), ui-sans-serif, system-ui, sans-serif;
+    var(--font-plus-jakarta-sans), var(--font-sarabun), ui-sans-serif, system-ui, sans-serif;
   --font-sans:
-    var(--font-plus-jakarta-sans), var(--font-inter), var(--font-sarabun), ui-sans-serif, system-ui, sans-serif;
+    var(--font-plus-jakarta-sans), var(--font-sarabun), ui-sans-serif, system-ui, sans-serif;
   --font-plus-jakarta: var(--font-plus-jakarta-sans), sans-serif;
-  --font-inter: var(--font-inter), sans-serif;
   --font-sarabun: var(--font-sarabun), sans-serif;
 
   /* ==========================================================================

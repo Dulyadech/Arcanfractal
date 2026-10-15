@@ -3,4 +3,5 @@ export * from "./spread";
 export * from "./ai";
 export * from "./reading";
 export * from "./api";
+export * from "./daily";
 

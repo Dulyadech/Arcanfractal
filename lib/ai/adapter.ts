@@ -2,7 +2,7 @@ import { buildSystemPrompt, buildUserPrompt, buildSelfRepairPrompt } from "./pro
 import { validateAIInterpretation, extractJsonFromText } from "./validation";
 import { generateDeterministicFallback } from "./fallback";
 import { analyzeQuestion } from "./intent";
-import { callKKUIntelliShare } from "./providers/kku";
+import { callKKUIntelSphere } from "./providers/kku";
 import { callGemini } from "./providers/gemini";
 import type { SpreadId } from "@/types/spread";
 import type { DrawnCard } from "@/types/tarot";
@@ -26,16 +26,18 @@ async function callAvailableProvider(
   userPrompt: string,
   overrideModel?: string
 ): Promise<{ text: string; provider: "kku" | "gemini" } | null> {
-  const hasKKU = Boolean(process.env.KKU_INTELLISHARE_API_KEY);
+  const hasKKU =
+    Boolean(process.env.KKU_INTELSPHERE_API_KEY) ||
+    Boolean(process.env.KKU_INTELLISHARE_API_KEY);
   const hasGemini = Boolean(process.env.GEMINI_API_KEY);
 
-  // 1. Try Primary: KKU IntelliShare
+  // 1. Try Primary: KKU IntelSphere
   if (hasKKU) {
     try {
-      const text = await callKKUIntelliShare(systemPrompt, userPrompt, 30000, overrideModel);
+      const text = await callKKUIntelSphere(systemPrompt, userPrompt, 30000, overrideModel);
       return { text, provider: "kku" };
     } catch (kkuError) {
-      console.warn("KKU IntelliShare call failed, falling back to backup provider:", kkuError);
+      console.warn("KKU IntelSphere call failed, falling back to backup provider:", kkuError);
     }
   }
 
@@ -57,7 +59,7 @@ async function callAvailableProvider(
  *
  * Implements the complete multi-tier interpretation lifecycle:
  * 1. Question Analysis & Scope Lock (intent, sub-questions, primary question)
- * 2. AI Call (KKU IntelliShare Primary -> Gemini Backup)
+ * 2. AI Call (KKU IntelSphere Primary -> Gemini Backup)
  * 3. Output Schema Validation & Zero Hallucination Guard
  * 4. One-Shot Self-Repair if initial response violates constraints
  * 5. Deterministic Fallback Engine if AI is unavailable, times out, or fails repair
@@ -69,7 +71,9 @@ export async function interpretTarotSpread(
   const qAnalysis = analyzeQuestion(question, locale);
 
   const hasAnyKey =
-    Boolean(process.env.KKU_INTELLISHARE_API_KEY) || Boolean(process.env.GEMINI_API_KEY);
+    Boolean(process.env.KKU_INTELSPHERE_API_KEY) ||
+    Boolean(process.env.KKU_INTELLISHARE_API_KEY) ||
+    Boolean(process.env.GEMINI_API_KEY);
 
   // If no AI keys configured, immediately use deterministic fallback engine (D6)
   if (!hasAnyKey) {
@@ -148,7 +152,7 @@ export async function interpretTarotSpread(
 
     let repairedText: string | null = null;
     if (initialCallResult.provider === "kku") {
-      repairedText = await callKKUIntelliShare(systemPrompt, selfRepairPrompt).catch(() => null);
+      repairedText = await callKKUIntelSphere(systemPrompt, selfRepairPrompt).catch(() => null);
     } else {
       repairedText = await callGemini(systemPrompt, selfRepairPrompt).catch(() => null);
     }

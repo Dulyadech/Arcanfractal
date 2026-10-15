@@ -18,6 +18,7 @@ import { SPREAD_LIST, SPREADS } from "@/data/spreads";
 import { getReadingSession, saveSpreadSelection } from "@/lib/storage/reading-session";
 import { useLanguage } from "@/lib/i18n/context";
 import { getSpreadRecommendation } from "@/lib/tarot/spread-recommendation";
+import type { Signal } from "@/lib/tarot/spread-lexicon";
 
 export function SpreadSelection() {
   const router = useRouter();
@@ -28,6 +29,8 @@ export function SpreadSelection() {
   const [selectedSpreadId, setSelectedSpreadId] = useState<SpreadId>("three-timeline");
   const [reversedEnabled, setReversedEnabled] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [overrides, setOverrides] = useState<Partial<Record<Signal, number>>>({});
+  const [personalizedReason, setPersonalizedReason] = useState<string | null>(null);
 
   // Restore session from sessionStorage or redirect to landing if no question
   useEffect(() => {
@@ -52,8 +55,55 @@ export function SpreadSelection() {
     setIsLoading(false);
   }, [router, locale]);
 
-  const recommendation = getSpreadRecommendation(question, locale);
+  const recommendation = getSpreadRecommendation(question, locale, overrides);
   const selectedSpread = SPREADS[selectedSpreadId];
+
+  // Background fetch for personalized reason when not ambiguous and question is solid
+  useEffect(() => {
+    if (!question || question.trim().length < 5 || recommendation.ambiguous) return;
+
+    let isMounted = true;
+    const controller = new AbortController();
+
+    async function fetchPersonalizedReason() {
+      try {
+        const res = await fetch("/api/recommend-spread", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            question,
+            bestSpread: recommendation.spreadId,
+            firedSignals: recommendation.scoreResult.fired,
+            locale,
+          }),
+          signal: controller.signal,
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted && data.reason) {
+            setPersonalizedReason(data.reason);
+          }
+        }
+      } catch {
+        // Ignored, graceful fallback to static template
+      }
+    }
+
+    fetchPersonalizedReason();
+
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+  }, [question, recommendation.spreadId, recommendation.ambiguous, locale]);
+
+  const handleChipClick = (sig: Signal) => {
+    const newOverrides = { ...overrides, [sig]: 1.0 };
+    setOverrides(newOverrides);
+    const updated = getSpreadRecommendation(question, locale, newOverrides);
+    setSelectedSpreadId(updated.spreadId);
+  };
 
   const handleBegin = () => {
     saveSpreadSelection(selectedSpreadId, reversedEnabled);
@@ -115,14 +165,41 @@ export function SpreadSelection() {
             <span className="text-xs font-semibold tracking-wider text-emerald-300 uppercase">
               {locale === "en" ? "Intelligent Spread Match" : "ระบบแนะนำผังไพ่สำหรับคำถามของคุณ"}
             </span>
+            <span className="rounded-md bg-emerald-500/20 px-2 py-0.5 font-mono text-[11px] font-bold text-emerald-300">
+              {recommendation.topShare}% match
+            </span>
           </div>
           <span className="rounded-full border border-emerald-400/35 bg-emerald-500/20 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-200">
             {recommendation.badgeText}
           </span>
         </div>
 
+        {/* Guided Ambiguity Chips if ambiguous */}
+        {recommendation.ambiguous && recommendation.chips.length > 0 && (
+          <div className="mt-3 rounded-xl border border-amber-500/25 bg-amber-500/10 p-3">
+            <p className="text-[11px] font-medium text-amber-200">
+              {locale === "en"
+                ? "💡 Your question touches several directions. What do you want to focus on?"
+                : "💡 คำถามของคุณมองได้หลายมุม คุณอยากเน้นจุดไหนเป็นพิเศษ?"}
+            </p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {recommendation.chips.map((chip) => (
+                <button
+                  key={chip.id}
+                  type="button"
+                  onClick={() => handleChipClick(chip.id)}
+                  className="rounded-full border border-amber-400/40 bg-amber-400/20 px-3 py-1 text-xs font-medium text-amber-100 transition-all hover:bg-amber-400/30 active:scale-95"
+                >
+                  {locale === "en" ? chip.labelEn : chip.labelTh}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Explanation Reason (Personalized if available, otherwise template) */}
         <p className="mt-2.5 text-xs leading-relaxed text-zinc-200 sm:text-sm">
-          {recommendation.reason}
+          {personalizedReason || recommendation.reason}
         </p>
 
         {/* Theme Pills & Direct Switch Button */}
@@ -136,6 +213,13 @@ export function SpreadSelection() {
               {theme}
             </span>
           ))}
+
+          {recommendation.alternativeSpreadName && recommendation.alternativeSpreadId && (
+            <span className="inline-flex items-center gap-1 rounded-full border border-white/[0.06] bg-white/[0.02] px-2.5 py-0.5 text-[11px] text-zinc-400">
+              {locale === "en" ? "Alternative: " : "ทางเลือกรอง: "}
+              <span className="text-zinc-300">{recommendation.alternativeSpreadName}</span>
+            </span>
+          )}
 
           {selectedSpreadId !== recommendation.spreadId && (
             <button
