@@ -8,6 +8,7 @@ describe("GET /api/health (SDD §9.3)", () => {
 
   beforeEach(() => {
     clearDrawSessions();
+    delete process.env.KKU_INTELSPHERE_API_KEY;
     delete process.env.KKU_INTELLISHARE_API_KEY;
     delete process.env.GEMINI_API_KEY;
     vi.restoreAllMocks();
@@ -31,7 +32,7 @@ describe("GET /api/health (SDD §9.3)", () => {
     expect(data.services.tarotEngine.activeDrawSessions).toBe(0);
 
     expect(data.services.aiProviders.primary.status).toBe("unconfigured");
-    expect(data.services.aiProviders.primary.name).toBe("KKU IntelliShare");
+    expect(data.services.aiProviders.primary.name).toBe("KKU IntelSphere");
     expect(data.services.aiProviders.backup.status).toBe("unconfigured");
     expect(data.services.aiProviders.backup.name).toBe("Google Gemini");
     expect(data.services.aiProviders.fallbackEngine.status).toBe("ok");

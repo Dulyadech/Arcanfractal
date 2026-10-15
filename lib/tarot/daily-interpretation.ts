@@ -1,4 +1,7 @@
 import { getCardById } from "@/data/cards";
+import { getThaiCardDetail } from "@/data/cards/thai-meanings";
+import { callKKUIntelSphere } from "@/lib/ai/providers/kku";
+import { callGemini } from "@/lib/ai/providers/gemini";
 import type { CardOrientation, DrawnCard, TarotCard } from "@/types/tarot";
 import type { DailyCardInterpretation } from "@/types/daily";
 
@@ -602,6 +605,12 @@ function getMinorArcanaInterpretation(
   const suit = card.suit || "wands";
   const num = card.number;
 
+  const thaiCard = getThaiCardDetail(card.id);
+  const thaiName = thaiCard ? thaiCard.name : card.name;
+  const thaiKeywords = thaiCard ? thaiCard.keywords[orientation] : [];
+  const primaryThaiKeyword =
+    thaiKeywords[0] || (isUpright ? "การพัฒนาและการเติบโต" : "การปรับสมดุลและตั้งสติ");
+
   // Semantic characteristics per suit
   const suitConfig = {
     wands: {
@@ -626,13 +635,20 @@ function getMinorArcanaInterpretation(
     },
   }[suit];
 
-  const primaryKeyword =
+  const primaryKeywordEn =
     (isUpright ? card.keywords.upright[0] : card.keywords.reversed[0]) || card.name;
 
-  let adviceEn = card.meaning.short[orientation];
-  let adviceTh = isUpright
-    ? `นำพลังงานด้าน ${card.keywords.upright.slice(0, 2).join(", ")} มาปรับใช้ในการลงมือทำวันนี้`
-    : `ระวังจุดติดขัดในเรื่อง ${card.keywords.reversed.slice(0, 2).join(", ")} และค่อยๆ ปรับจังหวะอย่างมีสติ`;
+  const adviceEn = card.meaning.short[orientation];
+  const adviceTh =
+    thaiCard?.meaning.short[orientation] ||
+    (isUpright
+      ? `นำพลังงานด้าน ${primaryThaiKeyword} มาปรับใช้ในการสร้างสรรค์สิ่งดีๆ ในวันนี้`
+      : `ระวังจุดติดขัดในเรื่อง ${primaryThaiKeyword} และค่อยๆ จัดการด้วยความรอบคอบ`);
+
+  const overviewEn = card.meaning.full[orientation];
+  const overviewTh =
+    thaiCard?.meaning.full[orientation] ||
+    `วันนี้พลังงานของ ${thaiName} โดดเด่นเป็นพิเศษ สะท้อนถึง ${suitConfig.themeTh} โดยมอบข้อคิดในการโฟกัสกับเป้าหมายสำคัญและการรักษาสมดุลของชีวิต`;
 
   // Court cards special handling
   if (num >= 11) {
@@ -647,15 +663,17 @@ function getMinorArcanaInterpretation(
     return {
       en: {
         theme: `${card.name}: ${suitConfig.themeEn}`,
+        overview: overviewEn,
         affirmation: isUpright
           ? `I embody the wisdom and strengths of ${card.name} in my endeavors today.`
           : `I balance my inner ${court.en} with self-awareness and gentle restraint.`,
         advice: adviceEn,
       },
       th: {
-        theme: `${card.name}: ${suitConfig.themeTh}`,
+        theme: `${thaiName}: ${suitConfig.themeTh}`,
+        overview: overviewTh,
         affirmation: isUpright
-          ? `ฉันนำจุดเด่นและปัญญาของ ${card.name} มาขับเคลื่อนสิ่งดีๆ ในวันนี้`
+          ? `ฉันนำจุดเด่นและปัญญาของ ${thaiName} มาขับเคลื่อนสิ่งดีๆ ในวันนี้`
           : `ฉันตระหนักรู้และปรับสมดุลพลังงานของ ${court.th} เพื่อความลงตัว`,
         advice: adviceTh,
       },
@@ -666,16 +684,18 @@ function getMinorArcanaInterpretation(
   return {
     en: {
       theme: `${card.name}: ${suitConfig.themeEn}`,
+      overview: overviewEn,
       affirmation: isUpright
-        ? `I channel ${primaryKeyword} into my daily life with quiet confidence.`
-        : `I bring compassion and clarity to moments of ${primaryKeyword}.`,
+        ? `I channel ${primaryKeywordEn} into my daily life with quiet confidence.`
+        : `I bring compassion and clarity to moments of ${primaryKeywordEn}.`,
       advice: adviceEn,
     },
     th: {
-      theme: `${card.name}: ${suitConfig.themeTh}`,
+      theme: `${thaiName}: ${suitConfig.themeTh}`,
+      overview: overviewTh,
       affirmation: isUpright
-        ? `ฉันเปิดรับพลังงานแห่ง ${primaryKeyword} สู่การใช้ชีวิตประจำวันด้วยความมั่นใจ`
-        : `ฉันโอบกอดและคลี่คลายภาวะ ${primaryKeyword} ด้วยความเข้าใจและสติ`,
+        ? `ฉันเปิดรับพลังงานแห่ง ${primaryThaiKeyword} สู่การใช้ชีวิตประจำวันด้วยความมั่นใจ`
+        : `ฉันโอบกอดและคลี่คลายภาวะ ${primaryThaiKeyword} ด้วยความเข้าใจและสติ`,
       advice: adviceTh,
     },
   };
@@ -688,14 +708,32 @@ export function getDeterministicDailyInterpretation(
   cardId: string,
   orientation: CardOrientation = "upright"
 ): DualDailyInterpretation {
+  const card = getCardById(cardId);
+  const thaiCard = getThaiCardDetail(cardId);
+
   // 1. Check curated Major Arcana catalog
   const majorEntry = MAJOR_INTERPRETATIONS[cardId];
   if (majorEntry) {
-    return majorEntry[orientation];
+    const entry = majorEntry[orientation];
+    return {
+      en: {
+        ...entry.en,
+        overview:
+          entry.en.overview ||
+          card?.meaning.full[orientation] ||
+          `Today's energy reflects ${entry.en.theme}. Meditate upon this archetypal force to guide your day.`,
+      },
+      th: {
+        ...entry.th,
+        overview:
+          entry.th.overview ||
+          thaiCard?.meaning.full[orientation] ||
+          `พลังงานหลักของวันนี้สะท้อนถึง ${entry.th.theme} จงนำข้อคิดและปัญญาญาณของไพ่มาปรับใช้ในการดำเนินชีวิตอย่างมีสติ`,
+      },
+    };
   }
 
   // 2. Lookup in standard deck catalog
-  const card = getCardById(cardId);
   if (card) {
     return getMinorArcanaInterpretation(card, orientation);
   }
@@ -704,11 +742,15 @@ export function getDeterministicDailyInterpretation(
   return {
     en: {
       theme: "Present Moment Awareness",
+      overview:
+        "Center your awareness on the present moment. Observe your thoughts and emotions without judgment, allowing clarity to emerge naturally.",
       affirmation: "I am centered, calm, and aligned with my inner truth today.",
       advice: "Take each hour as it comes, moving with clarity and mindful grace.",
     },
     th: {
       theme: "การอยู่กับปัจจุบันขณะ",
+      overview:
+        "ตั้งสติอยู่กับช่วงเวลาปัจจุบัน สังเกตความคิดและอารมณ์ที่ผ่านเข้ามาโดยไม่ด่วนตัดสิน ให้ความสงบนิ่งภายในนำทางความชัดเจนของวัน",
       affirmation: "ฉันตั้งมั่น สงบ และสอดคล้องกับความจริงแท้ในใจของตนเองในวันนี้",
       advice: "ก้าวไปทีละขณะจิต ลงมือทำด้วยความกระจ่างชัดและสติอันมั่นคง",
     },
@@ -716,11 +758,125 @@ export function getDeterministicDailyInterpretation(
 }
 
 /**
- * Synthesizes the daily card interpretation.
- * Uses deterministic synthesis by default with zero network latency.
+ * Synthesizes a deep, personalized Daily Tarot reading via LLM (KKU IntelSphere / Gemini).
+ * When no API keys or when offline, seamlessly returns deterministic fallback.
  */
-export async function generateDailyInterpretation(
+export async function generateAiDailyInterpretation(
   card: DrawnCard
 ): Promise<DualDailyInterpretation> {
+  const hasKKU =
+    Boolean(process.env.KKU_INTELSPHERE_API_KEY) ||
+    Boolean(process.env.KKU_INTELLISHARE_API_KEY);
+  const hasGemini = Boolean(process.env.GEMINI_API_KEY);
+
+  if (!hasKKU && !hasGemini) {
+    return getDeterministicDailyInterpretation(card.cardId, card.orientation);
+  }
+
+  const cardObj = card.card || getCardById(card.cardId);
+  const cardName = cardObj ? cardObj.name : card.cardId;
+  const thaiDetail = getThaiCardDetail(card.cardId);
+  const thaiName = thaiDetail ? thaiDetail.name : cardName;
+
+  const systemPrompt = `You are Arcanfractal, an intuitive Tarot master and spiritual psychologist.
+Your sacred task is to interpret a single Daily Tarot card for mindful reflection and spiritual empowerment for today.
+
+Strict Guidelines:
+1. NO USER QUESTION: The user has not asked a question; deliver a deep, flowing archetypal reflection for the day ahead.
+2. Produce BOTH Thai and English interpretations in a single valid JSON object.
+3. Language Quality:
+   - For 'th': Use elegant, fluent, natural Thai prose with rich psychological and spiritual depth. ABSOLUTELY NO English words or untranslated jargon in Thai text.
+   - For 'en': Eloquent, reflective, and empowering prose.
+4. Schema Requirements:
+{
+  "th": {
+    "theme": "ธีมหรือพลังงานหลักของวันสั้นกระชับ (1 บรรทัด)",
+    "overview": "บทวิเคราะห์และภาพสะท้อนจิตวิญญาณประจำวันแบบเจาะลึกและประณีต (1-2 ย่อหน้า ประมาณ 120-200 คำ) ตีความพลังงานของไพ่ ความคิด อารมณ์ โอกาส และข้อคิดเตือนใจสำหรับการใช้ชีวิตในวันนี้",
+    "affirmation": "ประโยคพลังใจสำหรับการเริ่มต้นวันเพื่อการตั้งจิต (Affirmation สั้นและมีพลัง)",
+    "advice": "คำแนะนำการปฏิบัติตัวและทัศนคติที่ควรมีในวันนี้ (สิ่งที่ควรทำ หรือข้อควรระวัง)"
+  },
+  "en": {
+    "theme": "Concise theme or core energy of the day (under 10 words)",
+    "overview": "In-depth, eloquent daily reflection (1-2 paragraphs, ~120-200 words) interpreting the card's archetype, psychological symbolism, emotional resonance, and how to mindfully navigate today's experiences.",
+    "affirmation": "An empowering 1-sentence mindful affirmation to anchor one's spirit today.",
+    "advice": "Grounded, actionable advice on mindset to adopt and practical steps to take today."
+  }
+}
+5. Return ONLY raw JSON without markdown code fences.`;
+
+  const userPrompt = `Drawn Daily Card: ${cardName} (${thaiName})
+Orientation: ${card.orientation} (${card.orientation === "reversed" ? "Reversed / กลับหัว" : "Upright / ตำแหน่งตั้ง"})
+Arcana: ${cardObj?.arcana || "tarot"}
+${cardObj?.suit ? `Suit: ${cardObj.suit}` : ""}
+Keywords: ${cardObj?.keywords[card.orientation].join(", ") || ""}
+Full Archetypal Lore: ${cardObj?.meaning.full[card.orientation] || ""}`;
+
+  let rawJson = "";
+
+  try {
+    if (hasKKU) {
+      try {
+        rawJson = await callKKUIntelSphere(systemPrompt, userPrompt, 20000);
+      } catch (e) {
+        console.warn("KKU IntelSphere failed for daily interpretation, trying Gemini...", e);
+      }
+    }
+
+    if (!rawJson && hasGemini) {
+      rawJson = await callGemini(systemPrompt, userPrompt, 20000);
+    }
+
+    if (rawJson) {
+      const cleaned = rawJson.replace(/```(?:json)?\s*([\s\S]*?)\s*```/i, "$1").trim();
+      const parsed = JSON.parse(cleaned);
+      if (
+        parsed?.th?.theme &&
+        parsed?.th?.affirmation &&
+        parsed?.th?.advice &&
+        parsed?.en?.theme &&
+        parsed?.en?.affirmation &&
+        parsed?.en?.advice
+      ) {
+        return {
+          th: {
+            theme: String(parsed.th.theme).trim(),
+            overview: parsed.th.overview ? String(parsed.th.overview).trim() : undefined,
+            affirmation: String(parsed.th.affirmation).trim(),
+            advice: String(parsed.th.advice).trim(),
+          },
+          en: {
+            theme: String(parsed.en.theme).trim(),
+            overview: parsed.en.overview ? String(parsed.en.overview).trim() : undefined,
+            affirmation: String(parsed.en.affirmation).trim(),
+            advice: String(parsed.en.advice).trim(),
+          },
+        };
+      }
+    }
+  } catch (error) {
+    console.error("AI daily interpretation error, using deterministic fallback:", error);
+  }
+
+  return getDeterministicDailyInterpretation(card.cardId, card.orientation);
+}
+
+/**
+ * Synthesizes the daily card interpretation.
+ * Uses AI by default when available, with immediate deterministic fallback.
+ */
+export async function generateDailyInterpretation(
+  card: DrawnCard,
+  options?: { useAi?: boolean }
+): Promise<DualDailyInterpretation> {
+  const allowAi = options?.useAi !== false;
+  const hasKey =
+    Boolean(process.env.KKU_INTELSPHERE_API_KEY) ||
+    Boolean(process.env.KKU_INTELLISHARE_API_KEY) ||
+    Boolean(process.env.GEMINI_API_KEY);
+
+  if (allowAi && hasKey) {
+    return generateAiDailyInterpretation(card);
+  }
+
   return getDeterministicDailyInterpretation(card.cardId, card.orientation);
 }

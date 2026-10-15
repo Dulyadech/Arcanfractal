@@ -9,12 +9,13 @@ import {
   Copy,
   Check,
   Clock,
-  Languages,
   Calendar,
+  BookOpen,
 } from "lucide-react";
 import type { DailyCardRecord } from "@/types/daily";
 import { getTimeUntilMidnight } from "@/lib/storage/daily-card";
 import { getCardById } from "@/data/cards";
+import { getThaiCardDetail } from "@/data/cards/thai-meanings";
 
 interface DailyCardResultProps {
   record: DailyCardRecord;
@@ -22,7 +23,6 @@ interface DailyCardResultProps {
 }
 
 export function DailyCardResult({ record, onOpenHistory }: DailyCardResultProps) {
-  const [activeLocale, setActiveLocale] = useState<"th" | "en">(record.locale || "en");
   const [copied, setCopied] = useState(false);
   const [countdown, setCountdown] = useState(getTimeUntilMidnight());
 
@@ -34,23 +34,27 @@ export function DailyCardResult({ record, onOpenHistory }: DailyCardResultProps)
     return () => clearInterval(timer);
   }, []);
 
-  const cardData = record.card.card || getCardById(record.card.cardId);
-  const cardName = cardData ? cardData.name : record.card.cardId;
+  const thaiCardDetail = getThaiCardDetail(record.card.cardId);
+  const fallbackCard = record.card.card || getCardById(record.card.cardId);
+  const cardDisplayName = thaiCardDetail ? thaiCardDetail.name : fallbackCard?.name || record.card.cardId;
+  const orientationText = record.card.orientation === "reversed" ? "กลับหัว" : "ตำแหน่งตั้ง";
 
-  // Dual interpretation handling
+  // Use Thai interpretation exclusively
   const activeInterpretation =
-    record.interpretations?.[activeLocale] || {
+    record.interpretations?.th || {
       theme: record.theme,
+      overview: record.overview,
       affirmation: record.affirmation,
       advice: record.advice,
     };
 
   const handleCopy = async () => {
-    const textToCopy = `✨ Arcanfractal Daily Guidance (${record.date})
-Card: ${cardName} (${record.card.orientation})
-Theme: ${activeInterpretation.theme}
-Affirmation: "${activeInterpretation.affirmation}"
-Mindset Advice: ${activeInterpretation.advice}`;
+    const textToCopy = `✨ Arcanfractal ไพ่ประจำวัน (${record.date})
+ไพ่: ${cardDisplayName} (${orientationText})
+ธีม: ${activeInterpretation.theme}
+${activeInterpretation.overview ? `\nบทสะท้อนประจำวัน:\n${activeInterpretation.overview}\n` : ""}
+ประโยคพลังใจ: "${activeInterpretation.affirmation}"
+ข้อคิดแนวทาง: ${activeInterpretation.advice}`;
 
     try {
       await navigator.clipboard.writeText(textToCopy);
@@ -61,22 +65,18 @@ Mindset Advice: ${activeInterpretation.advice}`;
     }
   };
 
-  const toggleLanguage = () => {
-    setActiveLocale((prev) => (prev === "en" ? "th" : "en"));
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.3 }}
-      className="w-full max-w-xl mx-auto space-y-5"
+      className="w-full max-w-xl mx-auto space-y-5 text-left"
     >
-      {/* Top action row: Language switcher & Countdown */}
+      {/* Top action row: History & Countdown */}
       <div className="flex flex-wrap items-center justify-between gap-2 px-1 text-xs text-zinc-400">
         <div className="flex items-center gap-1.5 bg-[#14181d]/85 border border-white/[0.1] px-2.5 py-1 rounded-full">
           <Clock className="w-3.5 h-3.5 text-teal-400" />
-          <span>Next card in:</span>
+          <span>ไพ่ใบถัดไปในอีก:</span>
           <span className="font-mono text-emerald-200 font-medium">
             {String(countdown.hours).padStart(2, "0")}:
             {String(countdown.minutes).padStart(2, "0")}:
@@ -84,28 +84,16 @@ Mindset Advice: ${activeInterpretation.advice}`;
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
-          {onOpenHistory && (
-            <button
-              onClick={onOpenHistory}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#14181d]/80 hover:bg-[#1a2027] text-zinc-300 border border-white/[0.1] transition"
-              title="View past daily cards"
-            >
-              <Calendar className="w-3.5 h-3.5 text-zinc-400" />
-              <span>History</span>
-            </button>
-          )}
-
+        {onOpenHistory && (
           <button
-            onClick={toggleLanguage}
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/40 hover:bg-emerald-900/50 text-emerald-200 border border-emerald-500/30 transition shadow-sm"
+            onClick={onOpenHistory}
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#14181d]/80 hover:bg-[#1a2027] text-zinc-300 border border-white/[0.1] transition cursor-pointer"
+            title="ดูประวัติไพ่ประจำวันในอดีต"
           >
-            <Languages className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="font-medium">
-              {activeLocale === "en" ? "TH ภาษาไทย" : "EN English"}
-            </span>
+            <Calendar className="w-3.5 h-3.5 text-emerald-400" />
+            <span>ประวัติไพ่</span>
           </button>
-        </div>
+        )}
       </div>
 
       {/* Main Insight Card */}
@@ -117,7 +105,7 @@ Mindset Advice: ${activeInterpretation.advice}`;
         <div className="mb-4">
           <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-emerald-400 mb-1">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Theme of the Day</span>
+            <span>ธีมพลังงานประจำวัน</span>
           </div>
           <h3 className="text-lg sm:text-xl font-serif font-bold text-white">
             {activeInterpretation.theme}
@@ -128,15 +116,28 @@ Mindset Advice: ${activeInterpretation.advice}`;
         <div className="relative my-4 rounded-xl border border-emerald-500/25 bg-emerald-950/20 p-4 sm:p-5">
           <Quote className="pointer-events-none absolute top-3 left-3 w-6 h-6 text-emerald-400/20 -scale-x-100" />
           <p className="relative pl-6 text-base sm:text-lg font-serif italic text-emerald-100 leading-relaxed">
-            "{activeInterpretation.affirmation}"
+            &ldquo;{activeInterpretation.affirmation}&rdquo;
           </p>
         </div>
+
+        {/* In-depth Daily Reflection (Overview) */}
+        {activeInterpretation.overview && (
+          <div className="mt-4 pt-4 border-t border-white/[0.08]">
+            <div className="flex items-center gap-1.5 text-xs font-semibold tracking-wider uppercase text-emerald-300 mb-2">
+              <BookOpen className="w-3.5 h-3.5 text-emerald-400" />
+              <span>บทสะท้อนและพลังงานประจำวัน</span>
+            </div>
+            <p className="text-sm sm:text-base text-zinc-300 leading-relaxed whitespace-pre-line">
+              {activeInterpretation.overview}
+            </p>
+          </div>
+        )}
 
         {/* Mindset Guidance */}
         <div className="mt-4 pt-4 border-t border-white/[0.08]">
           <div className="flex items-center gap-1.5 text-xs font-semibold tracking-wider uppercase text-teal-400 mb-1.5">
             <Compass className="w-3.5 h-3.5" />
-            <span>Mindset & Action Guidance</span>
+            <span>แนวทางและข้อคิดในการใช้ชีวิต</span>
           </div>
           <p className="text-sm sm:text-base text-zinc-300 leading-relaxed">
             {activeInterpretation.advice}
@@ -147,17 +148,17 @@ Mindset Advice: ${activeInterpretation.advice}`;
         <div className="mt-5 pt-3 flex justify-end">
           <button
             onClick={handleCopy}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium bg-white/[0.06] hover:bg-white/[0.1] text-zinc-200 border border-white/[0.1] transition shadow-sm"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium bg-white/[0.06] hover:bg-white/[0.1] text-zinc-200 border border-white/[0.1] transition shadow-sm cursor-pointer"
           >
             {copied ? (
               <>
                 <Check className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="text-emerald-300">Copied!</span>
+                <span className="text-emerald-300">คัดลอกเรียบร้อยแล้ว!</span>
               </>
             ) : (
               <>
                 <Copy className="w-3.5 h-3.5 text-zinc-400" />
-                <span>Copy Guidance</span>
+                <span>คัดลอกคำทำนาย</span>
               </>
             )}
           </button>

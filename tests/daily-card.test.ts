@@ -29,6 +29,9 @@ describe("Daily Card Ritual — Unit & Integration Tests (Phase 9)", () => {
   beforeEach(() => {
     mockStore = {};
     clearDailyCardStorage();
+    delete process.env.KKU_INTELSPHERE_API_KEY;
+    delete process.env.KKU_INTELLISHARE_API_KEY;
+    delete process.env.GEMINI_API_KEY;
 
     vi.stubGlobal("window", {
       localStorage: {

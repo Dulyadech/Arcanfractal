@@ -45,7 +45,10 @@ Detected intent signals: ${Array.isArray(firedSignals) ? firedSignals.join(", ")
     try {
       if (process.env.GEMINI_API_KEY) {
         aiResponseText = await callGemini(systemPrompt, userPrompt, 1500);
-      } else if (process.env.KKU_INTELLISHARE_API_KEY) {
+      } else if (
+        process.env.KKU_INTELSPHERE_API_KEY ||
+        process.env.KKU_INTELLISHARE_API_KEY
+      ) {
         aiResponseText = await callKKUIntelliShare(systemPrompt, userPrompt, 1500);
       }
     } catch {

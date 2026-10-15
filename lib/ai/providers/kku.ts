@@ -1,21 +1,26 @@
 /**
- * KKU IntelliShare API Provider Adapter (Primary Provider - SDD §7, §7.1).
+ * KKU IntelSphere API Provider Adapter (Primary Provider - SDD §7, §7.1).
  * Uses OpenAI-compatible chat completions interface.
  */
-export async function callKKUIntelliShare(
+export async function callKKUIntelSphere(
   systemPrompt: string,
   userPrompt: string,
   timeoutMs: number = 30000,
   overrideModel?: string
 ): Promise<string> {
-  const apiKey = process.env.KKU_INTELLISHARE_API_KEY;
+  const apiKey =
+    process.env.KKU_INTELSPHERE_API_KEY || process.env.KKU_INTELLISHARE_API_KEY;
   if (!apiKey) {
-    throw new Error("KKU_INTELLISHARE_API_KEY is not configured.");
+    throw new Error("KKU_INTELSPHERE_API_KEY is not configured.");
   }
 
-  const rawBaseUrl = process.env.KKU_INTELLISHARE_BASE_URL || "https://gen.ai.kku.ac.th/api/v1";
+  const rawBaseUrl =
+    process.env.KKU_INTELSPHERE_BASE_URL ||
+    process.env.KKU_INTELLISHARE_BASE_URL ||
+    "https://gen.ai.kku.ac.th/api/v1";
   const baseUrl = rawBaseUrl.replace(/\/+$/, "");
-  const configuredModel = process.env.KKU_INTELLISHARE_MODEL;
+  const configuredModel =
+    process.env.KKU_INTELSPHERE_MODEL || process.env.KKU_INTELLISHARE_MODEL;
   const model =
     overrideModel ||
     (configuredModel && configuredModel !== "gpt-4o-mini"
@@ -74,14 +79,14 @@ export async function callKKUIntelliShare(
 
     if (!response.ok) {
       const errorText = await response.text().catch(() => "");
-      throw new Error(`KKU IntelliShare responded with status ${response.status}: ${errorText}`);
+      throw new Error(`KKU IntelSphere responded with status ${response.status}: ${errorText}`);
     }
 
     const data = await response.json();
     const content = data?.choices?.[0]?.message?.content;
 
     if (!content || typeof content !== "string") {
-      throw new Error("KKU IntelliShare returned an empty response.");
+      throw new Error("KKU IntelSphere returned an empty response.");
     }
 
     return content;
@@ -89,3 +94,8 @@ export async function callKKUIntelliShare(
     clearTimeout(timeoutId);
   }
 }
+
+/**
+ * Backward compatibility alias for KKU IntelliShare.
+ */
+export const callKKUIntelliShare = callKKUIntelSphere;

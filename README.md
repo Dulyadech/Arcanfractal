@@ -51,8 +51,8 @@ flowchart TD
 | **Typography** | Google Fonts | Cinzel (Editorial Serif), Plus Jakarta Sans, Sarabun |
 | **Animations** | Framer Motion | 3D card flips, smooth drawer transitions |
 | **Icons & UI** | Lucide React + Radix UI | Minimalist, accessible design primitives |
-| **AI Integration** | KKU IntelliShare / Gemini | OpenAI-compatible adapter with zero-hallucination fallback |
-| **Testing** | Vitest | 21 test suites, 180+ unit and integration tests |
+| **AI Integration** | KKU IntelSphere / Gemini | OpenAI-compatible adapter with zero-hallucination fallback |
+| **Testing** | Vitest | 22 test suites, 189+ unit and integration tests |
 
 ---
 
@@ -85,10 +85,10 @@ Configure your credentials inside `.env.local`:
 # Application URL
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 
-# KKU IntelliShare API (Primary Provider)
-KKU_INTELLISHARE_API_KEY=your_api_key_here
-KKU_INTELLISHARE_BASE_URL=https://gen.ai.kku.ac.th/api/v1
-KKU_INTELLISHARE_MODEL=gemini-3.8-flash
+# KKU IntelSphere API (Primary Provider)
+KKU_INTELSPHERE_API_KEY=your_api_key_here
+KKU_INTELSPHERE_BASE_URL=https://gen.ai.kku.ac.th/api/v1
+KKU_INTELSPHERE_MODEL=gemini-3.8-flash
 
 # Google Gemini API (Backup Fallback Provider)
 GEMINI_API_KEY=your_gemini_key_here
@@ -138,7 +138,7 @@ pnpm test
 │   └── safety/                 # CrisisPanel intervention modal
 ├── data/                       # 78 Tarot cards data, spreads catalog, inspiration prompts
 ├── lib/
-│   ├── ai/                     # LLM client adapters (KKU IntelliShare & Gemini fallback)
+│   ├── ai/                     # LLM client adapters (KKU IntelSphere & Gemini fallback)
 │   ├── i18n/                   # Bilingual translations (EN / TH) & context
 │   ├── safety/                 # Crisis intent detection
 │   ├── storage/                # LocalStorage & SessionStorage managers

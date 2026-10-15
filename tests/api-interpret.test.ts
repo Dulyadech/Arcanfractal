@@ -13,6 +13,7 @@ describe("POST /api/interpret (SDD §9.2, §5)", () => {
   beforeEach(() => {
     clearDrawSessions();
     // Isolate tests from external network calls by default
+    delete process.env.KKU_INTELSPHERE_API_KEY;
     delete process.env.KKU_INTELLISHARE_API_KEY;
     delete process.env.GEMINI_API_KEY;
     vi.restoreAllMocks();

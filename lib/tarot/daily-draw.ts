@@ -16,6 +16,7 @@ export interface DailyDrawOptions {
 /**
  * Draws a single daily Tarot card using cryptographic entropy (crypto.getRandomValues).
  * If the user has already drawn today, returns today's cached record without re-drawing.
+ * Connects to /api/daily for AI-powered interpretation when available, falling back to local engine.
  */
 export async function drawDailyCard(
   options: DailyDrawOptions = {}
@@ -25,9 +26,27 @@ export async function drawDailyCard(
     return existingToday;
   }
 
-  const { allowReversed = false, locale = "en" } = options;
+  const { allowReversed = false, locale = "th" } = options;
 
-  // 1. Cryptographic random index selection (0..77) without modulo bias
+  // 1. When in browser, fetch server /api/daily to leverage LLM generation
+  if (typeof window !== "undefined" && Boolean(window.location?.origin) && typeof fetch !== "undefined") {
+    try {
+      const res = await fetch("/api/daily", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ allowReversed, locale }),
+      });
+      if (res.ok) {
+        const record = (await res.json()) as DailyCardRecord;
+        saveDailyCard(record);
+        return record;
+      }
+    } catch (err) {
+      console.warn("Server /api/daily request failed, using local draw fallback:", err);
+    }
+  }
+
+  // 2. Cryptographic random index selection (0..77) without modulo bias
   const randomBuffer = new Uint32Array(2);
   if (typeof crypto !== "undefined" && crypto.getRandomValues) {
     crypto.getRandomValues(randomBuffer);
@@ -39,7 +58,7 @@ export async function drawDailyCard(
   const cardIndex = randomBuffer[0] % TAROT_DECK.length;
   const rawCard = TAROT_DECK[cardIndex];
 
-  // 2. Determine orientation (50% chance if enabled, else upright)
+  // 3. Determine orientation (50% chance if enabled, else upright)
   const isReversed = allowReversed ? randomBuffer[1] % 2 === 1 : false;
   const orientation: CardOrientation = isReversed ? "reversed" : "upright";
 
@@ -51,9 +70,9 @@ export async function drawDailyCard(
     card: rawCard,
   };
 
-  // 3. Generate micro-interpretations
-  const interpretations = await generateDailyInterpretation(drawnCard);
-  const activeInterpretation = interpretations[locale] || interpretations.en;
+  // 4. Generate micro-interpretations
+  const interpretations = await generateDailyInterpretation(drawnCard, { useAi: true });
+  const activeInterpretation = interpretations[locale] || interpretations.th;
 
   const todayStr = getLocalDateString();
   const recordId = `daily-${todayStr}-${rawCard.id}`;
@@ -64,6 +83,7 @@ export async function drawDailyCard(
     drawnAt: new Date().toISOString(),
     card: drawnCard,
     theme: activeInterpretation.theme,
+    overview: activeInterpretation.overview,
     affirmation: activeInterpretation.affirmation,
     advice: activeInterpretation.advice,
     locale,
@@ -71,7 +91,7 @@ export async function drawDailyCard(
     status: "complete",
   };
 
-  // 4. Persist to localStorage, append to history, and update streak
+  // 5. Persist to localStorage, append to history, and update streak
   saveDailyCard(record);
 
   return record;

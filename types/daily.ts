@@ -6,6 +6,8 @@ import type { DrawnCard } from "./tarot";
 export interface DailyCardInterpretation {
   /** Thematic energy or focus keyword for the day (e.g. "Clarity & Decisiveness") */
   theme: string;
+  /** In-depth daily reflection and archetypal energy narrative */
+  overview?: string;
   /** Uplifting personal affirmation */
   affirmation: string;
   /** Practical mindset or action advice for the day */
@@ -26,6 +28,8 @@ export interface DailyCardRecord {
   card: DrawnCard;
   /** Active theme for the selected locale */
   theme: string;
+  /** In-depth daily reflection and archetypal energy narrative */
+  overview?: string;
   /** Active affirmation for the selected locale */
   affirmation: string;
   /** Active daily advice for the selected locale */
